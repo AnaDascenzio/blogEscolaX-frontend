@@ -1,4 +1,44 @@
-# React + TypeScript + Vite
+# Portal Escolar - Frontend
+
+Frontend do Portal Escolar, desenvolvido com React, Vite e TypeScript.
+
+## Rodando localmente
+
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
+
+O backend deve estar rodando em `http://localhost:3000`. Altere `VITE_API_URL` quando necessário.
+
+## Scripts
+
+- `npm run dev`: servidor de desenvolvimento
+- `npm run build`: typecheck e build de produção
+- `npm run lint`: ESLint
+- `npm run preview`: serve o build localmente
+
+## Contrato do backend
+
+O frontend usa as rotas existentes no backend `AnaDascenzio/blogEscolaX`:
+
+- `POST /users/signin` retorna `{ token }`.
+- `GET /posts` retorna `{ post, total }` e aceita `page` e `limit`.
+- `GET /posts/search?keyword=` busca publicações.
+- `GET /posts/:id` busca uma publicação.
+- `POST /posts`, `PUT /posts/:id` e `DELETE /posts/:id` exigem JWT de professor.
+
+## Organização para trabalho paralelo
+
+- `src/components`: componentes compartilhados, sem regra de negócio.
+- `src/contexts`: estado global, incluindo autenticação.
+- `src/services`: acesso à API; páginas não devem criar instâncias Axios.
+- `src/types`: contratos compartilhados de API.
+- `src/pages`: cada dev é dono da sua pasta de tela.
+- `src/routes`: apenas composição de rotas e autorização.
+
+As rotas e componentes base já estão registrados. Cada dev pode substituir o placeholder da sua rota pela página real sem alterar o cliente HTTP ou o contexto global.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

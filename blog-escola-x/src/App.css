@@ -1,3 +1,27 @@
+.page-placeholder {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  padding: 32px;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.page-placeholder h1,
+.page-placeholder p { margin: 0; }
+
+.page-placeholder h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+
+.page-placeholder p:not(.eyebrow) { color: var(--color-text-secondary); }
+
+.eyebrow {
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 .counter {
   font-size: 16px;
   padding: 5px 10px;
