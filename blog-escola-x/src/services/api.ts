@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+  // Em dev o Vite faz proxy de /api → http://localhost:3000 (sem CORS).
+  // Em produção, define VITE_API_URL com a URL completa do backend.
+  baseURL: import.meta.env.VITE_API_URL || "/api",
   headers: {
     "Content-Type": "application/json",
   },

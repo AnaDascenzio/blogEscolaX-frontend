@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Home } from "../pages/Home/Home";
+import { CriarPublicacao } from "../pages/CriarPublicacao/CriarPublicacao";
+import { LeituraPost } from "../pages/LeituraPost/LeituraPost";
 
 function PagePlaceholder({ title }: { title: string }) {
   return (
@@ -20,11 +22,11 @@ export function AppRoutes() {
         <Route path="/api-test" element={<Home />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<PagePlaceholder title="Últimas publicações" />} />
-          <Route path="/post/:id" element={<PagePlaceholder title="Leitura da publicação" />} />
+          <Route path="/post/:id" element={<LeituraPost />} />
           <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
             <Route path="/professor" element={<PagePlaceholder title="Painel do professor" />} />
-            <Route path="/post/novo" element={<PagePlaceholder title="Nova publicação" />} />
-            <Route path="/post/editar/:id" element={<PagePlaceholder title="Editar publicação" />} />
+            <Route path="/post/novo" element={<CriarPublicacao />} />
+            <Route path="/post/editar/:id" element={<CriarPublicacao />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
