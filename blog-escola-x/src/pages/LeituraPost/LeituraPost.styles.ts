@@ -36,6 +36,70 @@ export const StateMsg = styled.p<{ $error?: boolean }>`
     $error ? "var(--color-danger)" : "var(--color-text-secondary)"};
 `;
 
+// ── Error / Not Found state ──────────────────────────────────────────────────
+
+export const ErrorWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px 20px;
+`;
+
+export const ErrorCard = styled.div`
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+`;
+
+export const ErrorIconCircle = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 24px;
+`;
+
+export const ErrorTitle = styled.h2`
+  margin: 0 0 12px;
+  font-size: 1.35rem;
+  color: var(--color-text);
+  line-height: 1.3;
+`;
+
+export const ErrorDescription = styled.p`
+  margin: 0 0 28px;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+`;
+
+export const ErrorBtn = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--color-primary-dark);
+  }
+`;
+
 // ── Grid ─────────────────────────────────────────────────────────────────────
 
 export const Grid = styled.div`

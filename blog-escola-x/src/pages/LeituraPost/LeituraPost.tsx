@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { BookOpen, Calendar, MessageSquare, Shield } from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, MessageSquare, SearchX, Shield } from "lucide-react";
 import { getPostById, getPosts } from "../../services/posts.service";
 import type { Post } from "../../types/api";
 import * as S from "./LeituraPost.styles";
@@ -88,7 +88,11 @@ export function LeituraPost() {
           setRelated(others);
         });
       })
-      .catch(() => setError("Não foi possível carregar a publicação."))
+      .catch(() =>
+        setError(
+          "Ops! O post que você procura não está disponível ou não existe. Que tal voltar ao feed e explorar outras publicações?"
+        )
+      )
       .finally(() => setIsLoading(false));
   }, [id]);
 
@@ -108,8 +112,22 @@ export function LeituraPost() {
     return (
       <S.Page>
         <S.Container>
-          <S.Breadcrumb to="/">← Voltar para o feed</S.Breadcrumb>
-          <S.StateMsg $error>{error ?? "Publicação não encontrada."}</S.StateMsg>
+          <S.ErrorWrapper>
+            <S.ErrorCard>
+              <S.ErrorIconCircle>
+                <SearchX size={36} color="var(--color-primary)" strokeWidth={1.5} />
+              </S.ErrorIconCircle>
+              <S.ErrorTitle>Publicação não encontrada</S.ErrorTitle>
+              <S.ErrorDescription>
+                O post que você procura não está disponível ou não existe.
+                Ele pode ter sido removido ou o link pode estar incorreto.
+              </S.ErrorDescription>
+              <S.ErrorBtn to="/">
+                <ArrowLeft size={16} />
+                Voltar para o feed
+              </S.ErrorBtn>
+            </S.ErrorCard>
+          </S.ErrorWrapper>
         </S.Container>
       </S.Page>
     );

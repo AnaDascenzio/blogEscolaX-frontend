@@ -182,37 +182,6 @@ export function CriarPublicacao() {
 
   return (
     <S.PageWrapper>
-      {/* ── Navegação ── */}
-      <S.Nav>
-        <S.NavInner>
-          <S.NavBrand>
-            <S.NavLogo>◈</S.NavLogo>
-            <S.NavBrandText>
-              <strong>Portal Escolar</strong>
-              <span>Painel do Professor</span>
-            </S.NavBrandText>
-          </S.NavBrand>
-
-          <S.NavUser>
-            <S.NavAvatar>
-              {user?.name?.charAt(0).toUpperCase() ?? "P"}
-            </S.NavAvatar>
-            <S.NavUserText>
-              <strong>{user?.name ?? "Professor"}</strong>
-              <span>Professor</span>
-            </S.NavUserText>
-            <S.BtnSair
-              onClick={() => {
-                signOut();
-                navigate("/login");
-              }}
-            >
-              Sair
-            </S.BtnSair>
-          </S.NavUser>
-        </S.NavInner>
-      </S.Nav>
-
       {/* ── Conteúdo principal ── */}
       <S.Container>
         <S.Breadcrumb to="/">← Voltar para o feed</S.Breadcrumb>
