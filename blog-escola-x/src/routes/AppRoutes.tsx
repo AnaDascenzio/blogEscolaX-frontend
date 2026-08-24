@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Home } from "../pages/Home/Home";
+import { TeacherDashboard } from "../pages/TeacherDashboard/TeacherDashboard";
 
 function PagePlaceholder({ title }: { title: string }) {
   return (
@@ -22,7 +23,7 @@ export function AppRoutes() {
           <Route path="/" element={<PagePlaceholder title="Últimas publicações" />} />
           <Route path="/post/:id" element={<PagePlaceholder title="Leitura da publicação" />} />
           <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
-            <Route path="/professor" element={<PagePlaceholder title="Painel do professor" />} />
+            <Route path="/professor" element={<TeacherDashboard />} />
             <Route path="/post/novo" element={<PagePlaceholder title="Nova publicação" />} />
             <Route path="/post/editar/:id" element={<PagePlaceholder title="Editar publicação" />} />
           </Route>
