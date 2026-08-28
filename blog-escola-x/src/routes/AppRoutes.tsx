@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Home } from "../pages/Home/Home";
+import { TeacherDashboard } from "../pages/TeacherDashboard/TeacherDashboard";
 import { CriarPublicacao } from "../pages/CriarPublicacao/CriarPublicacao";
 import { LeituraPost } from "../pages/LeituraPost/LeituraPost";
 
@@ -24,7 +25,7 @@ export function AppRoutes() {
           <Route path="/" element={<PagePlaceholder title="Últimas publicações" />} />
           <Route path="/post/:id" element={<LeituraPost />} />
           <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
-            <Route path="/professor" element={<PagePlaceholder title="Painel do professor" />} />
+            <Route path="/professor" element={<TeacherDashboard />} />
             <Route path="/post/novo" element={<CriarPublicacao />} />
             <Route path="/post/editar/:id" element={<CriarPublicacao />} />
           </Route>
