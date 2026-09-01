@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
+//passar para uma interface depois
 export type UserRole = "TEACHER" | "STUDENT";
 
 export interface AuthUser {
