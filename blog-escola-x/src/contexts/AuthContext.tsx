@@ -3,7 +3,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 export type UserRole = "TEACHER" | "STUDENT";
 
 export interface AuthUser {
-	id: number;
+	id: string;
 	email: string;
 	role: UserRole;
 	name?: string;

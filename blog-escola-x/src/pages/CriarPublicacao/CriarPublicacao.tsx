@@ -46,7 +46,7 @@ export function CriarPublicacao() {
   const { id } = useParams<{ id: string }>();
   const isEditing = Boolean(id);
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export function CriarPublicacao() {
   useEffect(() => {
     if (!isEditing || !id) return;
 
-    getPostById(Number(id))
+    getPostById(id)
       .then((post) => {
         reset({
           title: post.title,
@@ -163,7 +163,7 @@ export function CriarPublicacao() {
       }
 
       if (isEditing && id) {
-        await updatePost(Number(id), data);
+        await updatePost(id, data);
         toast.success("Publicação atualizada com sucesso!");
       } else {
         await createPost(data);

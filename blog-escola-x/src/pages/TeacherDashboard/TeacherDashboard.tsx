@@ -18,15 +18,15 @@ interface State {
   posts: Post[];
   isLoading: boolean;
   error: string | null;
-  deletingId: number | null;
+  deletingId: string | null;
 }
 
 type Action =
   | { type: "FETCH_START" }
   | { type: "FETCH_SUCCESS"; payload: Post[] }
   | { type: "FETCH_ERROR"; payload: string }
-  | { type: "DELETE_START"; payload: number }
-  | { type: "DELETE_SUCCESS"; payload: number }
+  | { type: "DELETE_START"; payload: string }
+  | { type: "DELETE_SUCCESS"; payload: string }
   | { type: "DELETE_ERROR"; payload: string };
 
 const initialState: State = {
@@ -105,7 +105,7 @@ export function TeacherDashboard() {
     [activePosts, user]
   );
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     if (!confirm("Tem certeza que deseja excluir esta publicação?")) return;
     dispatch({ type: "DELETE_START", payload: id });
     try {
@@ -150,7 +150,7 @@ export function TeacherDashboard() {
           </div>
         </header>
 
-        {/* Busca */}
+ 
         <input
           type="text"
           value={searchTerm}
@@ -159,7 +159,6 @@ export function TeacherDashboard() {
           className="mb-4 w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
         />
 
-        {/* Abas de matéria */}
         <div className="mb-6 flex flex-wrap gap-2">
           <button
             onClick={() => setActiveSubject("ALL")}
@@ -251,7 +250,7 @@ export function TeacherDashboard() {
             })}
           </section>
 
-          {/* Barra lateral */}
+         
           <aside className="space-y-4">
             <div className="rounded-xl bg-blue-600 p-5 text-white shadow-sm">
               <p className="font-semibold">Bem-vindo(a), {user?.name ?? "Professor(a)"}!</p>

@@ -16,7 +16,7 @@ export async function signIn(data: {
   return response.data;
 }
 
-export async function getUserById(id: number): Promise<AuthUser> {
+export async function getUserById(id: string): Promise<AuthUser> {
   const response = await api.get<AuthUser>(`/users/${id}`);
 
   return response.data;
@@ -38,7 +38,7 @@ export async function getUserByName(name: string): Promise<AuthUser> {
   return response.data;
 }
 
-export async function updateUser(id: number, data: object): Promise<AuthUser> {
+export async function updateUser(id: string, data: object): Promise<AuthUser> {
   const response = await api.put<AuthUser>(`/users/${id}`, data);
 
   return response.data;

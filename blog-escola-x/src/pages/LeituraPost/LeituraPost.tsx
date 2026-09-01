@@ -77,7 +77,7 @@ export function LeituraPost() {
     setRelated([]);
     setCoverError(false);
 
-    getPostById(Number(id))
+    getPostById(id)
       .then((data) => {
         setPost(data);
         return getPosts(1, 10).then((result) => {
