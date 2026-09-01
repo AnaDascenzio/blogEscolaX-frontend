@@ -5,7 +5,7 @@ import { z } from "zod";
 import { isAxiosError } from "axios";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Eye, EyeOff, GraduationCap, Lock, Mail } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { signIn as signInRequest } from "../../services/users.service";
 import * as S from "./Login.styles";
@@ -26,7 +26,6 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -65,61 +64,46 @@ export function Login() {
     <S.Page>
       <S.Card>
         <S.Brand>
-          <S.Logo>
-            <GraduationCap size={24} />
-          </S.Logo>
-          <S.Title>Portal Escolar</S.Title>
-          <S.Subtitle>Entre com sua conta para acessar o Blog Escola X</S.Subtitle>
+          <S.BrandLogo>
+            <GraduationCap size={22} />
+          </S.BrandLogo>
+          <S.BrandText>
+            <h1>Portal Escolar</h1>
+            <p>Entre com sua conta para acessar o Blog Escola X</p>
+          </S.BrandText>
         </S.Brand>
 
         <S.Form onSubmit={handleSubmit(onSubmit)} noValidate>
           <S.Field>
             <label htmlFor="email">E-mail</label>
-            <S.InputWrap>
-              <S.InputIcon>
-                <Mail size={16} />
-              </S.InputIcon>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="voce@escola.com"
-                {...register("email")}
-              />
-            </S.InputWrap>
+            <S.FieldInput
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="voce@escola.com"
+              $hasError={Boolean(errors.email)}
+              {...register("email")}
+            />
             {errors.email && <S.ErrorMsg>{errors.email.message}</S.ErrorMsg>}
           </S.Field>
 
           <S.Field>
             <label htmlFor="password">Senha</label>
-            <S.InputWrap>
-              <S.InputIcon>
-                <Lock size={16} />
-              </S.InputIcon>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="••••••••"
-                {...register("password")}
-              />
-              <S.ToggleVisibility
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </S.ToggleVisibility>
-            </S.InputWrap>
+            <S.FieldInput
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="••••••••"
+              $hasError={Boolean(errors.password)}
+              {...register("password")}
+            />
             {errors.password && <S.ErrorMsg>{errors.password.message}</S.ErrorMsg>}
           </S.Field>
 
-          <S.SubmitBtn type="submit" disabled={isSubmitting}>
+          <S.BtnSubmit type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Entrando..." : "Entrar"}
-          </S.SubmitBtn>
+          </S.BtnSubmit>
         </S.Form>
-
-        <S.Footer>Use as credenciais fornecidas pela coordenação da escola.</S.Footer>
       </S.Card>
     </S.Page>
   );

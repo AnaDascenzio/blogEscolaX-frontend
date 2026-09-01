@@ -2,19 +2,20 @@ import styled from "styled-components";
 
 export const Page = styled.div`
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  background: var(--color-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 24px;
+  background: var(--color-background);
 `;
 
 export const Card = styled.div`
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
   background: var(--color-white);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 36px 32px;
+  border-radius: 12px;
+  padding: 32px 28px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 `;
 
@@ -22,31 +23,34 @@ export const Brand = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 28px;
   text-align: center;
 `;
 
-export const Logo = styled.div`
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+export const BrandLogo = styled.div`
+  width: 44px;
+  height: 44px;
   background: var(--color-primary);
-  color: #fff;
+  border-radius: 10px;
   display: grid;
   place-items: center;
+  color: #fff;
+  font-size: 1.3rem;
 `;
 
-export const Title = styled.h1`
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--color-text);
-`;
+export const BrandText = styled.div`
+  h1 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--color-text);
+  }
 
-export const Subtitle = styled.p`
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  p {
+    margin: 4px 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+  }
 `;
 
 export const Form = styled.form`
@@ -61,59 +65,27 @@ export const Field = styled.div`
   gap: 6px;
 
   label {
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text);
   }
 `;
 
-export const InputWrap = styled.div`
-  position: relative;
+export const FieldInput = styled.input<{ $hasError?: boolean }>`
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  background: #fff;
+  outline: none;
+  border: 1px solid ${({ $hasError }) => ($hasError ? "var(--color-danger)" : "var(--color-border)")};
+  transition: border-color 0.15s, box-shadow 0.15s;
 
-  input {
-    width: 100%;
-    padding: 10px 14px 10px 38px;
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-    font-size: 0.875rem;
-    color: var(--color-text);
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-
-    &:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    &::placeholder {
-      color: #94a3b8;
-    }
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
-`;
-
-export const InputIcon = styled.span`
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-`;
-
-export const ToggleVisibility = styled.button`
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 4px;
 `;
 
 export const ErrorMsg = styled.span`
@@ -121,8 +93,7 @@ export const ErrorMsg = styled.span`
   color: var(--color-danger);
 `;
 
-export const SubmitBtn = styled.button`
-  margin-top: 4px;
+export const BtnSubmit = styled.button`
   padding: 11px 20px;
   border: none;
   border-radius: 8px;
@@ -141,11 +112,4 @@ export const SubmitBtn = styled.button`
     opacity: 0.6;
     cursor: not-allowed;
   }
-`;
-
-export const Footer = styled.p`
-  margin: 20px 0 0;
-  text-align: center;
-  font-size: 0.78rem;
-  color: var(--color-text-secondary);
 `;
