@@ -211,7 +211,12 @@ export function TeacherDashboard() {
                       </span>
                     )}
                   </div>
-                  <h2 className="mb-1 font-semibold text-slate-900">{post.title}</h2>
+                  <h2
+                    onClick={() => navigate(`/post/${post.id}`)}
+                    className="mb-1 cursor-pointer font-semibold text-slate-900 hover:underline"
+                  >
+                    {post.title}
+                  </h2>
                   <p className="mb-3 text-sm text-slate-500">
                     {post.summary ?? post.content.slice(0, 120)}
                   </p>

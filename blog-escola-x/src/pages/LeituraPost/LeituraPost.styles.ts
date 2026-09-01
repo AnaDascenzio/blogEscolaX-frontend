@@ -28,6 +28,24 @@ export const Breadcrumb = styled(Link)`
   }
 `;
 
+export const BackButton = styled.button`
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 export const StateMsg = styled.p<{ $error?: boolean }>`
   text-align: center;
   padding: 64px 0;

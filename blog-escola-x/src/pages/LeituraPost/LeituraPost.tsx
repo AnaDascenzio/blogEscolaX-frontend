@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen, Calendar, MessageSquare, SearchX, Shield } from "lucide-react";
 import { getPostById, getPosts } from "../../services/posts.service";
 import type { Post } from "../../types/api";
@@ -62,6 +62,7 @@ function initials(name?: string): string {
 
 export function LeituraPost() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const [post, setPost] = useState<Post | null>(null);
   const [related, setRelated] = useState<Post[]>([]);
@@ -147,7 +148,7 @@ export function LeituraPost() {
   return (
     <S.Page>
       <S.Container>
-        <S.Breadcrumb to="/">← Voltar para o feed</S.Breadcrumb>
+        <S.BackButton onClick={() => navigate(-1)}>← Voltar</S.BackButton>
 
         <S.Grid>
           {/* ════ Artigo ════ */}
