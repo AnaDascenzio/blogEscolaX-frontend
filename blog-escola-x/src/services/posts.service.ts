@@ -7,7 +7,7 @@ export async function getPosts(page = 1, limit = 10): Promise<PaginatedPosts> {
   return response.data;
 }
 
-export async function getPostById(id: number): Promise<Post> {
+export async function getPostById(id: string): Promise<Post> {
   const response = await api.get<Post>(`/posts/${id}`);
 
   return response.data;
@@ -29,13 +29,13 @@ export async function createPost(data: FormData | object): Promise<Post> {
   return response.data;
 }
 
-export async function updatePost(id: number, data: FormData | object): Promise<Post> {
+export async function updatePost(id: string, data: FormData | object): Promise<Post> {
   const response = await api.put<Post>(`/posts/${id}`, data);
 
   return response.data;
 }
 
-export async function deletePost(id: number): Promise<void> {
+export async function deletePost(id: string): Promise<void> {
   const response = await api.delete(`/posts/${id}`);
 
   return response.data;

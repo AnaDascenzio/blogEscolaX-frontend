@@ -76,7 +76,7 @@ export function CriarPublicacao() {
   useEffect(() => {
     if (!isEditing || !id) return;
 
-    getPostById(Number(id))
+    getPostById(id)
       .then((post) => {
         reset({
           title: post.title,
@@ -163,7 +163,7 @@ export function CriarPublicacao() {
       }
 
       if (isEditing && id) {
-        await updatePost(Number(id), data);
+        await updatePost(id, data);
         toast.success("Publicação atualizada com sucesso!");
       } else {
         await createPost(data);
