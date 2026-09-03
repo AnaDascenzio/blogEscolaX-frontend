@@ -1,5 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { AppLayout } from "./AppLayout";
+import { Login } from "../pages/Login/Login";
 import { Home } from "../pages/Home/Home";
 import { TeacherDashboard } from "../pages/TeacherDashboard/TeacherDashboard";
 import { CriarPublicacao } from "../pages/CriarPublicacao/CriarPublicacao";
@@ -19,15 +21,20 @@ export function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<PagePlaceholder title="Login" />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/api-test" element={<Home />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<PagePlaceholder title="Últimas publicações" />} />
-          <Route path="/post/:id" element={<LeituraPost />} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<PagePlaceholder title="Últimas publicações" />} />
+            <Route path="/post/:id" element={<LeituraPost />} />
+            <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
+              <Route path="/post/novo" element={<CriarPublicacao />} />
+              <Route path="/post/editar/:id" element={<CriarPublicacao />} />
+            </Route>
+          </Route>
+          {/* Painel do professor mantém seu próprio cabeçalho, por isso fica fora do AppLayout */}
           <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
             <Route path="/professor" element={<TeacherDashboard />} />
-            <Route path="/post/novo" element={<CriarPublicacao />} />
-            <Route path="/post/editar/:id" element={<CriarPublicacao />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
