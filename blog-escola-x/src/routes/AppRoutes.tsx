@@ -4,8 +4,8 @@ import { AppLayout } from "./AppLayout";
 import { Login } from "../pages/Login/Login";
 import { Home } from "../pages/Home/Home";
 import { TeacherDashboard } from "../pages/TeacherDashboard/TeacherDashboard";
-import { CriarPublicacao } from "../pages/CriarPublicacao/CriarPublicacao";
-import { LeituraPost } from "../pages/LeituraPost/LeituraPost";
+import { PostForm } from "../pages/PostForm/PostForm";
+import { PostDetail } from "../pages/PostDetail/PostDetail";
 
 function PagePlaceholder({ title }: { title: string }) {
   return (
@@ -26,10 +26,10 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<PagePlaceholder title="Últimas publicações" />} />
-            <Route path="/post/:id" element={<LeituraPost />} />
+            <Route path="/post/:id" element={<PostDetail />} />
             <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
-              <Route path="/post/novo" element={<CriarPublicacao />} />
-              <Route path="/post/editar/:id" element={<CriarPublicacao />} />
+              <Route path="/post/novo" element={<PostForm />} />
+              <Route path="/post/editar/:id" element={<PostForm />} />
             </Route>
           </Route>
           {/* Painel do professor mantém seu próprio cabeçalho, por isso fica fora do AppLayout */}
