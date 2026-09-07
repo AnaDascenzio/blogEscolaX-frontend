@@ -7,7 +7,8 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { GraduationCap } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { signIn as signInRequest } from "../../services/users.service";
+import { getRoleFromToken, getRoleRedirectPath } from "../../routes/redirects";
+import { getUserByEmail, signIn as signInRequest } from "../../services/users.service";
 import * as S from "./Login.styles";
 
 const schema = z.object({
@@ -22,7 +23,7 @@ interface LocationState {
 }
 
 export function Login() {
-  const { isAuthenticated, signIn } = useAuth();
+  const { isAuthenticated, user, signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,7 +39,8 @@ export function Login() {
   });
 
   if (isAuthenticated) {
-    const redirectTo = (location.state as LocationState | null)?.from?.pathname ?? "/";
+    const requestedPath = (location.state as LocationState | null)?.from?.pathname;
+    const redirectTo = requestedPath && requestedPath !== "/" ? requestedPath : getRoleRedirectPath(user?.role);
     return <Navigate to={redirectTo} replace />;
   }
 
@@ -46,8 +48,20 @@ export function Login() {
     setIsSubmitting(true);
     try {
       const { token } = await signInRequest(values);
-      signIn(token);
-      const redirectTo = (location.state as LocationState | null)?.from?.pathname ?? "/";
+      const tokenRole = getRoleFromToken(token);
+      signIn(token, tokenRole ? { role: tokenRole } : undefined);
+
+      let role = tokenRole;
+      try {
+        const authenticatedUser = await getUserByEmail(values.email);
+        signIn(token, authenticatedUser);
+        role = authenticatedUser.role;
+      } catch {
+        role = tokenRole;
+      }
+
+      const requestedPath = (location.state as LocationState | null)?.from?.pathname;
+      const redirectTo = requestedPath && requestedPath !== "/" ? requestedPath : getRoleRedirectPath(role);
       navigate(redirectTo, { replace: true });
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 401) {

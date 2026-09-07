@@ -125,30 +125,9 @@ export function TeacherDashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-blue-50 px-6 py-8">
+    <main className="min-h-screen bg-blue-50 px-4 py-4 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
-        {/* Cabeçalho: logo + Nova publicação + usuário/sair, tudo numa linha */}
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-6 rounded-xl bg-white px-6 py-4 shadow-sm">
-          <div className="flex items-center gap-3">
-           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100">
-              <span className="h-4 w-4 rotate-45 rounded-sm bg-blue-600" />
-            </span>
-            <div>
-              <p className="font-bold text-slate-900">Portal Escolar</p>
-              <p className="text-sm text-slate-500">Painel do Professor</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/post/novo")}
-              className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
-            >
-              + Nova publicação
-            </button>
-            <div className="h-8 w-px bg-slate-200" />
-            <Header />
-          </div>
-        </header>
+        <Header showNewPost />
 
  
         <input
@@ -220,13 +199,13 @@ export function TeacherDashboard() {
                   <p className="mb-3 text-sm text-slate-500">
                     {post.summary ?? post.content.slice(0, 120)}
                   </p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <span className="text-sm text-slate-600">
                       {post.author?.name ?? "Autor desconhecido"}
                       {isOwnPost && " (Você)"}
                     </span>
                     {isOwnPost ? (
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => navigate(`/post/editar/${post.id}`)}
                           className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"

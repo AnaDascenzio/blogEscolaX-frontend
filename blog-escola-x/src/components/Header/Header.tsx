@@ -1,32 +1,53 @@
+import { GraduationCap, LogOut, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../Avatar/Avatar";
-import { LogOut } from "lucide-react";
+import * as S from "./Header.styles";
 
-export function Header() {
+interface HeaderProps {
+  showNewPost?: boolean;
+}
+
+export function Header({ showNewPost = false }: HeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   function handleSignOut() {
     signOut();
-    navigate("/login");
+    navigate("/login", { replace: true });
   }
 
   return (
-    <div className="mb-6 flex items-center justify-end gap-3">
-      <Avatar name={user?.name ?? user?.email ?? "?"} />
-      <div className="text-right">
-        <p className="text-sm font-medium text-slate-900">{user?.name ?? user?.email}</p>
-        <p className="text-xs text-slate-500">{user?.role === "TEACHER" ? "Professor" : "Aluno"}</p>
-      </div>
-    <button
-  onClick={handleSignOut}
-  className="ml-2 flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
->
-  <LogOut size={16} />
-  Sair
-</button>
-    </div>
+    <S.HeaderBar>
+      <S.Brand>
+        <S.BrandIcon aria-hidden="true">
+          <GraduationCap size={21} strokeWidth={2} />
+        </S.BrandIcon>
+        <S.BrandText>
+          <strong>Portal Escolar</strong>
+          <span>{user?.role === "TEACHER" ? "Painel do Professor" : "O blog oficial da nossa escola"}</span>
+        </S.BrandText>
+      </S.Brand>
+
+      <S.Actions>
+        {showNewPost && (
+          <S.NewPostButton type="button" onClick={() => navigate("/post/novo")}>
+            <Plus size={16} aria-hidden="true" /> Nova publicação
+          </S.NewPostButton>
+        )}
+        <S.User>
+          <S.UserText>
+            <strong>{user?.name ?? user?.email ?? "Usuário"}</strong>
+            <span>{user?.role === "TEACHER" ? "Professor" : "Aluno"}</span>
+          </S.UserText>
+          <Avatar name={user?.name ?? user?.email ?? "?"} />
+          <S.LogoutButton type="button" onClick={handleSignOut} aria-label="Sair">
+            <LogOut size={16} aria-hidden="true" />
+            <span>Sair</span>
+          </S.LogoutButton>
+        </S.User>
+      </S.Actions>
+    </S.HeaderBar>
   );
 }
 
