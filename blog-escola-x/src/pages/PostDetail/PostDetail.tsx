@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen, Calendar, MessageSquare, SearchX, Shield } from "lucide-react";
 import { getPostById, getPosts } from "../../services/posts.service";
 import type { Post } from "../../types/api";
-import * as S from "./LeituraPost.styles";
+import * as S from "./PostDetail.styles";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -60,7 +60,7 @@ function initials(name?: string): string {
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-export function LeituraPost() {
+export function PostDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 

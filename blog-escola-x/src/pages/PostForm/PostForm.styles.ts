@@ -349,7 +349,7 @@ export const SidebarCard = styled.div`
 
 // ── Dicas ─────────────────────────────────────────────────────────────────────
 
-export const DicasList = styled.ul`
+export const TipsList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
@@ -358,7 +358,7 @@ export const DicasList = styled.ul`
   gap: 14px;
 `;
 
-export const DicasItem = styled.li`
+export const TipsItem = styled.li`
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -371,7 +371,7 @@ export const DicasItem = styled.li`
   }
 `;
 
-export const DicaDot = styled.span`
+export const TipDot = styled.span`
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -382,12 +382,12 @@ export const DicaDot = styled.span`
 
 // ── Autor Info ────────────────────────────────────────────────────────────────
 
-export const AutorInfo = styled.div`
+export const AuthorInfo = styled.div`
   display: flex;
   flex-direction: column;
 `;
 
-export const AutorRow = styled.div`
+export const AuthorRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -401,11 +401,11 @@ export const AutorRow = styled.div`
   }
 `;
 
-export const AutorLabel = styled.span`
+export const AuthorLabel = styled.span`
   color: var(--color-text-secondary);
 `;
 
-export const AutorValue = styled.span`
+export const AuthorValue = styled.span`
   color: var(--color-text);
   font-weight: 500;
 `;

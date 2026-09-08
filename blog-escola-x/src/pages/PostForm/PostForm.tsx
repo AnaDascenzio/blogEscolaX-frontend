@@ -11,7 +11,7 @@ import {
   getPostById,
   updatePost,
 } from "../../services/posts.service";
-import * as S from "./CriarPublicacao.styles";
+import * as S from "./PostForm.styles";
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ type FormValues = z.infer<typeof schema>;
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-export function CriarPublicacao() {
+export function PostForm() {
   const { id } = useParams<{ id: string }>();
   const isEditing = Boolean(id);
   const navigate = useNavigate();
@@ -367,56 +367,56 @@ export function CriarPublicacao() {
           <S.Sidebar>
             <S.SidebarCard>
               <h3>Dicas de Escrita 💡</h3>
-              <S.DicasList>
-                <S.DicasItem>
-                  <S.DicaDot />
+              <S.TipsList>
+                <S.TipsItem>
+                  <S.TipDot />
                   <div>
                     <strong>Seja claro no título:</strong> Capte a atenção dos
                     estudantes com títulos diretos e organizados.
                   </div>
-                </S.DicasItem>
-                <S.DicasItem>
-                  <S.DicaDot />
+                </S.TipsItem>
+                <S.TipsItem>
+                  <S.TipDot />
                   <div>
                     <strong>Categorize bem:</strong> Atribuir a matéria correta
                     ajuda os alunos a filtrarem o conteúdo no feed de estudos.
                   </div>
-                </S.DicasItem>
-                <S.DicasItem>
-                  <S.DicaDot />
+                </S.TipsItem>
+                <S.TipsItem>
+                  <S.TipDot />
                   <div>
                     <strong>Linguagem acessível:</strong> Lembre-se que o
                     público-alvo principal são os alunos. Mantenha um tom
                     encorajador.
                   </div>
-                </S.DicasItem>
-                <S.DicasItem>
-                  <S.DicaDot />
+                </S.TipsItem>
+                <S.TipsItem>
+                  <S.TipDot />
                   <div>
                     <strong>Moderação ativa:</strong> Como espaço escolar,
                     garanta que todos os textos sigam o código de ética e
                     convivência.
                   </div>
-                </S.DicasItem>
-              </S.DicasList>
+                </S.TipsItem>
+              </S.TipsList>
             </S.SidebarCard>
 
             <S.SidebarCard>
               <h3>Informações do Autor</h3>
-              <S.AutorInfo>
-                <S.AutorRow>
-                  <S.AutorLabel>Autor:</S.AutorLabel>
-                  <S.AutorValue>{user?.name ?? "Professor"}</S.AutorValue>
-                </S.AutorRow>
-                <S.AutorRow>
-                  <S.AutorLabel>Status:</S.AutorLabel>
+              <S.AuthorInfo>
+                <S.AuthorRow>
+                  <S.AuthorLabel>Autor:</S.AuthorLabel>
+                  <S.AuthorValue>{user?.name ?? "Professor"}</S.AuthorValue>
+                </S.AuthorRow>
+                <S.AuthorRow>
+                  <S.AuthorLabel>Status:</S.AuthorLabel>
                   <S.StatusBadge>Rascunho</S.StatusBadge>
-                </S.AutorRow>
-                <S.AutorRow>
-                  <S.AutorLabel>Data de Criação:</S.AutorLabel>
-                  <S.AutorValue>Hoje</S.AutorValue>
-                </S.AutorRow>
-              </S.AutorInfo>
+                </S.AuthorRow>
+                <S.AuthorRow>
+                  <S.AuthorLabel>Data de Criação:</S.AuthorLabel>
+                  <S.AuthorValue>Hoje</S.AuthorValue>
+                </S.AuthorRow>
+              </S.AuthorInfo>
             </S.SidebarCard>
           </S.Sidebar>
         </S.Grid>
