@@ -7,8 +7,8 @@ export const Search = styled.input`width: 100%; margin-bottom: 16px; padding: 10
 export const Filters = styled.div`display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;`;
 export const Filter = styled.button<{ $active?: boolean }>`padding: 6px 12px; color: ${({ $active }) => ($active ? "#fff" : "#475569")}; background: ${({ $active }) => ($active ? "#2563eb" : "#fff")}; border: 0; border-radius: 999px; cursor: pointer; font-size: .875rem; font-weight: 500; &:hover { background: ${({ $active }) => ($active ? "#1d4ed8" : "#f8fafc")}; }`;
 export const ErrorMessage = styled.p`margin: 0 0 16px; padding: 12px 16px; color: #dc2626; background: #fef2f2; border-radius: 8px; font-size: .875rem;`;
-export const Grid = styled.div`display: grid; grid-template-columns: 1fr; gap: 24px; @media (min-width: 1024px) { grid-template-columns: minmax(0, 1fr) 320px; }`;
-export const PostList = styled.section`display: grid; gap: 16px;`;
+export const Grid = styled.div`display: grid; grid-template-columns: 1fr; align-items: start; gap: 24px; @media (min-width: 1024px) { grid-template-columns: minmax(0, 1fr) 320px; }`;
+export const PostList = styled.section`display: grid; align-content: start; gap: 16px;`;
 export const Empty = styled.p`margin: 0; padding: 24px; color: #64748b; background: #fff; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px rgb(15 23 42 / 8%);`;
 export const Post = styled.article`padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgb(15 23 42 / 8%);`;
 export const PostMeta = styled.div`display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;`;
