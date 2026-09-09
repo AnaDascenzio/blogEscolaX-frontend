@@ -139,28 +139,26 @@ export function PostForm() {
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      let data: FormData | object;
-
-      if (imageFile) {
-        const fd = new FormData();
-        fd.append("title", values.title);
-        fd.append("subject", values.subject);
-        if (values.summary) fd.append("summary", values.summary);
-        fd.append("content", values.content);
-        if (values.link) fd.append("link", values.link);
-        fd.append("image", imageFile);
-        if (user?.id) fd.append("authorId", String(user.id));
-        data = fd;
-      } else {
-        data = {
-          title: values.title,
-          subject: values.subject,
-          ...(values.summary ? { summary: values.summary } : {}),
-          content: values.content,
-          ...(values.link ? { link: values.link } : {}),
-          ...(user?.id ? { authorId: user.id } : {}),
-        };
-      }
+      const data: FormData | object = imageFile
+        ? (() => {
+            const formData = new FormData();
+            formData.append("title", values.title);
+            formData.append("subject", values.subject);
+            formData.append("content", values.content);
+            if (values.summary) formData.append("summary", values.summary);
+            if (values.link) formData.append("link", values.link);
+            formData.append("image", imageFile);
+            if (user?.id) formData.append("authorId", user.id);
+            return formData;
+          })()
+        : {
+            title: values.title,
+            content: values.content,
+            subject: values.subject,
+            ...(values.summary ? { summary: values.summary } : {}),
+            ...(values.link ? { link: values.link } : {}),
+            ...(user?.id ? { authorId: user.id } : {}),
+          };
 
       if (isEditing && id) {
         await updatePost(id, data);
@@ -171,8 +169,15 @@ export function PostForm() {
       }
 
       navigate("/professor");
-    } catch {
-      toast.error("Erro ao salvar a publicação. Tente novamente.");
+    } catch (error) {
+      console.error("Erro ao salvar publicação:", error);
+      const responseMessage = (
+        error as { response?: { data?: { message?: string | string[] } } }
+      ).response?.data?.message;
+      const message = Array.isArray(responseMessage)
+        ? responseMessage.join(", ")
+        : responseMessage;
+      toast.error(message || "Erro ao salvar a publicação. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }

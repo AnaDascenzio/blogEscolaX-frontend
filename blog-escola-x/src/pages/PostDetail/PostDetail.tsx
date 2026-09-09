@@ -58,6 +58,18 @@ function initials(name?: string): string {
     .slice(0, 2);
 }
 
+function getImageUrl(post: Post | null): string | null {
+  if (!post) return null;
+
+  const rawUrl = post.imageUrl || post.image || post.cover || post.coverUrl;
+  if (!rawUrl?.trim()) return null;
+
+  if (/^(https?:|data:|blob:)/i.test(rawUrl)) return rawUrl;
+
+  const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  return new URL(rawUrl, `${apiBaseUrl.replace(/\/$/, "")}/`).toString();
+}
+
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function PostDetail() {
@@ -69,18 +81,18 @@ export function PostDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [coverError, setCoverError] = useState(false);
+  const [loadedPostId, setLoadedPostId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
-    setIsLoading(true);
-    setError(null);
-    setPost(null);
-    setRelated([]);
-    setCoverError(false);
 
     getPostById(id)
       .then((data) => {
+        setError(null);
+        setRelated([]);
+        setCoverError(false);
         setPost(data);
+        setLoadedPostId(id);
         return getPosts(1, 10).then((result) => {
           const others = result.post
             .filter((p) => p.id !== data.id && !p.isDeleted)
@@ -89,17 +101,18 @@ export function PostDetail() {
           setRelated(others);
         });
       })
-      .catch(() =>
+      .catch(() => {
         setError(
           "Ops! O post que você procura não está disponível ou não existe. Que tal voltar ao feed e explorar outras publicações?"
-        )
-      )
+        );
+        setLoadedPostId(id);
+      })
       .finally(() => setIsLoading(false));
   }, [id]);
 
   // ── Loading / Error ──────────────────────────────────────────────────────
 
-  if (isLoading) {
+  if (isLoading || loadedPostId !== id) {
     return (
       <S.Page>
         <S.Container>
@@ -182,10 +195,10 @@ export function PostDetail() {
             </S.AuthorRow>
 
             {/* Imagem de capa */}
-            {post.imageUrl && !coverError && (
+            {getImageUrl(post) && !coverError && (
               <S.Cover>
                 <img
-                  src={post.imageUrl}
+                  src={getImageUrl(post)!}
                   alt={`Capa: ${post.title}`}
                   onError={() => setCoverError(true)}
                 />
@@ -272,9 +285,9 @@ export function PostDetail() {
                       <S.RelatedItem key={rp.id}>
                         <S.RelatedLink to={`/post/${rp.id}`}>
                           <S.RelatedThumb>
-                            {rp.imageUrl ? (
+                            {getImageUrl(rp) ? (
                               <img
-                                src={rp.imageUrl}
+                                src={getImageUrl(rp)!}
                                 alt={rp.title}
                                 onError={(e) => {
                                   const t = e.currentTarget.parentElement;
