@@ -11,6 +11,13 @@ export function getRoleRedirectPath(role?: UserRole | null): string {
   }
 }
 
+/**
+ * Extrai o papel do JWT para direcionamento de UI.
+ *
+ * ⚠️ SEGURANÇA: NÃO valida a assinatura do token. O papel extraído serve
+ * apenas para direcionar a navegação (UX). A autorização real é feita
+ * no backend a partir das claims verificadas.
+ */
 export function getRoleFromToken(token?: string | null): UserRole | null {
   if (!token) return null;
 
