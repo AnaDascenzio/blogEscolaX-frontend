@@ -1,0 +1,25 @@
+import styled from "styled-components";
+
+export const Loading = styled.main`min-height: 100vh; display: grid; place-items: center; color: var(--color-primary); background: var(--color-primary-light);`;
+export const Page = styled.main`min-height: 100vh; padding: 16px; background: var(--color-primary-light); @media (min-width: 640px) { padding: 32px 24px; }`;
+export const Container = styled.div`max-width: 1152px; margin: 0 auto;`;
+export const Search = styled.input`width: 100%; margin-bottom: 16px; padding: 10px 16px; color: #334155; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; font-size: .875rem; outline: none; &:focus { box-shadow: 0 0 0 2px #93c5fd; }`;
+export const Filters = styled.div`display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;`;
+export const Filter = styled.button<{ $active?: boolean }>`padding: 6px 12px; color: ${({ $active }) => ($active ? "#fff" : "#475569")}; background: ${({ $active }) => ($active ? "#2563eb" : "#fff")}; border: 0; border-radius: 999px; cursor: pointer; font-size: .875rem; font-weight: 500; &:hover { background: ${({ $active }) => ($active ? "#1d4ed8" : "#f8fafc")}; }`;
+export const ErrorMessage = styled.p`margin: 0 0 16px; padding: 12px 16px; color: #dc2626; background: #fef2f2; border-radius: 8px; font-size: .875rem;`;
+export const Grid = styled.div`display: grid; grid-template-columns: 1fr; gap: 24px; @media (min-width: 1024px) { grid-template-columns: minmax(0, 1fr) 320px; }`;
+export const PostList = styled.section`display: grid; gap: 16px;`;
+export const Empty = styled.p`margin: 0; padding: 24px; color: #64748b; background: #fff; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px rgb(15 23 42 / 8%);`;
+export const Post = styled.article`padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgb(15 23 42 / 8%);`;
+export const PostMeta = styled.div`display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;`;
+export const Subject = styled.span`display: inline-block; padding: 2px 8px; color: #2563eb; background: #eff6ff; border-radius: 999px; font-size: .75rem; font-weight: 500;`;
+export const DateText = styled.span`color: #94a3b8; font-size: .75rem;`;
+export const Title = styled.h2`margin: 0 0 4px; color: #0f172a; cursor: pointer; font-size: 1rem; font-weight: 600; &:hover { text-decoration: underline; }`;
+export const Summary = styled.p`margin: 0 0 12px; color: #64748b; font-size: .875rem;`;
+export const PostFooter = styled.div`display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; color: #475569; font-size: .875rem;`;
+export const Actions = styled.div`display: flex; flex-wrap: wrap; gap: 8px;`;
+export const Action = styled.button<{ $danger?: boolean; $link?: boolean }>`padding: ${({ $link }) => ($link ? "0" : "6px 12px")}; color: ${({ $danger, $link }) => ($danger ? "#fff" : $link ? "#2563eb" : "#fff")}; background: ${({ $danger, $link }) => ($link ? "transparent" : $danger ? "#dc2626" : "#2563eb")}; border: 0; border-radius: ${({ $link }) => ($link ? "0" : "8px")}; cursor: pointer; font-size: .875rem; font-weight: 500; &:hover { text-decoration: ${({ $link }) => ($link ? "underline" : "none")}; filter: brightness(.94); } &:disabled { opacity: .5; cursor: not-allowed; }`;
+export const Sidebar = styled.aside`display: grid; gap: 16px;`;
+export const Welcome = styled.div`padding: 20px; color: #fff; background: #2563eb; border-radius: 12px; box-shadow: 0 1px 3px rgb(15 23 42 / 8%); p { margin: 0; &:last-child { margin-top: 4px; color: #dbeafe; font-size: .875rem; } }`;
+export const InfoCard = styled.div`padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgb(15 23 42 / 8%); p { margin: 0; color: #475569; font-size: .875rem; &:first-child { font-weight: 500; } &:not(:first-child) { margin-top: 4px; color: #64748b; font-size: .75rem; } }`;
+export const Count = styled.p`font-size: 1.5rem !important; font-weight: 700 !important; color: #0f172a !important;`;

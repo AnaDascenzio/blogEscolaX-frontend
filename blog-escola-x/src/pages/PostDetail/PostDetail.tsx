@@ -72,29 +72,49 @@ export function PostDetail() {
 
   useEffect(() => {
     if (!id) return;
-    setIsLoading(true);
-    setError(null);
-    setPost(null);
-    setRelated([]);
-    setCoverError(false);
 
-    getPostById(id)
-      .then((data) => {
+    const postId = id;
+    let cancelled = false;
+
+    async function loadPost() {
+      await Promise.resolve();
+      if (cancelled) return;
+
+      setIsLoading(true);
+      setError(null);
+      setPost(null);
+      setRelated([]);
+      setCoverError(false);
+
+      try {
+        const data = await getPostById(postId);
+        if (cancelled) return;
+
         setPost(data);
-        return getPosts(1, 10).then((result) => {
-          const others = result.post
-            .filter((p) => p.id !== data.id && !p.isDeleted)
-            .sort((a) => (a.subject === data.subject ? -1 : 1))
-            .slice(0, 3);
-          setRelated(others);
-        });
-      })
-      .catch(() =>
-        setError(
-          "Ops! O post que você procura não está disponível ou não existe. Que tal voltar ao feed e explorar outras publicações?"
-        )
-      )
-      .finally(() => setIsLoading(false));
+        const result = await getPosts(1, 10);
+        if (cancelled) return;
+
+        const others = result.post
+          .filter((p) => p.id !== data.id && !p.isDeleted)
+          .sort((a) => (a.subject === data.subject ? -1 : 1))
+          .slice(0, 3);
+        setRelated(others);
+      } catch {
+        if (!cancelled) {
+          setError(
+            "Ops! O post que você procura não está disponível ou não existe. Que tal voltar ao feed e explorar outras publicações?"
+          );
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    void loadPost();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   // ── Loading / Error ──────────────────────────────────────────────────────
