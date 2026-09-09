@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 //passar para uma interface depois
 export type UserRole = "TEACHER" | "STUDENT";
@@ -20,46 +20,93 @@ interface AuthContextValue {
 }
 
 const TOKEN_KEY = "access_token";
-const USER_KEY = "auth_user";
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function readStoredUser(): AuthUser | null {
-	const storedUser = localStorage.getItem(USER_KEY);
-	if (!storedUser) return null;
-
+/**
+ * Decodifica o payload do JWT para exibição na UI.
+ *
+ * ⚠️ SEGURANÇA: Esta decodificação NÃO valida a assinatura do token.
+ * Os dados extraídos (role, email, id) servem apenas para otimização
+ * visual da interface. Toda autorização real DEVE ser feita no backend
+ * a partir das claims verificadas do token.
+ */
+function decodeToken(jwt: string): Partial<AuthUser> | null {
 	try {
-		return JSON.parse(storedUser) as AuthUser;
+		const parts = jwt.split(".");
+		if (parts.length !== 3) return null;
+
+		const normalizedPayload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+		const payload = JSON.parse(atob(normalizedPayload)) as Record<string, unknown>;
+
+		// Rejeitar tokens expirados
+		if (typeof payload.exp === "number" && Date.now() >= payload.exp * 1000) {
+			return null;
+		}
+
+		return {
+			id: (payload.sub || payload.id) as string,
+			email: payload.email as string,
+			role: payload.role as UserRole,
+			name: payload.name as string | undefined,
+		};
 	} catch {
-		localStorage.removeItem(USER_KEY);
 		return null;
 	}
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-	const [user, setUser] = useState<AuthUser | null>(readStoredUser);
+	const [token, setToken] = useState<string | null>(() => {
+		const stored = localStorage.getItem(TOKEN_KEY);
+		if (!stored) return null;
+		// Rejeitar token expirado na inicialização
+		const decoded = decodeToken(stored);
+		if (!decoded) {
+			localStorage.removeItem(TOKEN_KEY);
+			return null;
+		}
+		return stored;
+	});
+	const [user, setUser] = useState<AuthUser | null>(() => {
+		const stored = localStorage.getItem(TOKEN_KEY);
+		if (!stored) return null;
+		const decoded = decodeToken(stored);
+		return decoded as AuthUser | null;
+	});
 	const isLoading = false;
 
-	function signIn(nextToken: string, nextUser?: Partial<AuthUser>) {
-		const payload = nextToken.split(".")[1];
-		const tokenUser = (() => {
-			try {
-				return payload ? JSON.parse(atob(payload)) as Partial<AuthUser> : {};
-			} catch {
-				return {};
-			}
-		})();
+	// Escutar evento de sessão expirada emitido pelo interceptor de 401 (api.ts).
+	// Ao receber, limpa o estado React para que ProtectedRoute redirecione para /login.
+	useEffect(() => {
+		const handleSessionExpired = () => {
+			localStorage.removeItem(TOKEN_KEY);
+			setToken(null);
+			setUser(null);
+		};
 
-		const nextAuthUser = { ...tokenUser, ...nextUser } as AuthUser;
+		window.addEventListener("session:expired", handleSessionExpired);
+		return () => window.removeEventListener("session:expired", handleSessionExpired);
+	}, []);
+
+	function signIn(nextToken: string, nextUser?: Partial<AuthUser>) {
+		const tokenData = decodeToken(nextToken);
+		if (!tokenData) return; // Token inválido — não fazer login
+
+		// Mesclar dados do token com dados complementares do backend (ex: name)
+		// ⚠️ Dados do token têm prioridade para id, email e role
+		const nextAuthUser = {
+			...nextUser,
+			...tokenData,
+			// Preservar name do backend se não vier no token
+			name: tokenData.name || nextUser?.name,
+		} as AuthUser;
+
 		localStorage.setItem(TOKEN_KEY, nextToken);
-		localStorage.setItem(USER_KEY, JSON.stringify(nextAuthUser));
 		setToken(nextToken);
 		setUser(nextAuthUser);
 	}
 
 	function signOut() {
 		localStorage.removeItem(TOKEN_KEY);
-		localStorage.removeItem(USER_KEY);
 		setToken(null);
 		setUser(null);
 	}

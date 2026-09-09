@@ -5,6 +5,13 @@ interface ProtectedRouteProps {
 	allowedRoles?: UserRole[];
 }
 
+/**
+ * Proteção de rota no lado do cliente — apenas otimização de UX.
+ *
+ * Esta verificação impede navegação indesejada na interface, mas NÃO
+ * constitui uma fronteira de segurança. Toda autorização é imposta pelo
+ * backend via validação do JWT e verificação de papel/propriedade.
+ */
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 	const { isAuthenticated, user, isLoading } = useAuth();
 	const location = useLocation();

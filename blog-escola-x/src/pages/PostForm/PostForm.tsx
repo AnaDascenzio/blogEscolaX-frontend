@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 import { ImageIcon, Link2 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import {
@@ -149,7 +150,6 @@ export function PostForm() {
         fd.append("content", values.content);
         if (values.link) fd.append("link", values.link);
         fd.append("image", imageFile);
-        if (user?.id) fd.append("authorId", String(user.id));
         data = fd;
       } else {
         data = {
@@ -158,7 +158,6 @@ export function PostForm() {
           ...(values.summary ? { summary: values.summary } : {}),
           content: values.content,
           ...(values.link ? { link: values.link } : {}),
-          ...(user?.id ? { authorId: user.id } : {}),
         };
       }
 
@@ -171,8 +170,12 @@ export function PostForm() {
       }
 
       navigate("/professor");
-    } catch {
-      toast.error("Erro ao salvar a publicação. Tente novamente.");
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 403) {
+        toast.error("Você não tem permissão para realizar esta ação.");
+      } else {
+        toast.error("Erro ao salvar a publicação. Tente novamente.");
+      }
     } finally {
       setIsSubmitting(false);
     }

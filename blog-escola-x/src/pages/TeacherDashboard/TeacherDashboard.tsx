@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useReducer, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import { getPosts, deletePost } from "../../services/posts.service";
 import { Header } from "../../components/Header/Header";
@@ -100,6 +101,7 @@ export function TeacherDashboard() {
     });
   }, [activePosts, activeSubject, searchTerm]);
 
+  // Verificação visual apenas — a autorização real é imposta pelo backend
   const myPostsCount = useMemo(
     () => activePosts.filter((p) => String(p.authorId) === String(user?.id)).length,
     [activePosts, user]
@@ -111,8 +113,12 @@ export function TeacherDashboard() {
     try {
       await deletePost(id);
       dispatch({ type: "DELETE_SUCCESS", payload: id });
-    } catch {
-      dispatch({ type: "DELETE_ERROR", payload: "Não foi possível excluir a publicação." });
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 403) {
+        dispatch({ type: "DELETE_ERROR", payload: "Você não tem permissão para excluir esta publicação." });
+      } else {
+        dispatch({ type: "DELETE_ERROR", payload: "Não foi possível excluir a publicação." });
+      }
     }
   }
 
@@ -177,6 +183,7 @@ export function TeacherDashboard() {
               </p>
             )}
             {visiblePosts.map((post) => {
+              {/* Verificação visual apenas — a autorização real é imposta pelo backend */}
               const isOwnPost = String(post.authorId) === String(user?.id);
               return (
                 <article key={post.id} className="rounded-xl bg-white p-5 shadow-sm">
