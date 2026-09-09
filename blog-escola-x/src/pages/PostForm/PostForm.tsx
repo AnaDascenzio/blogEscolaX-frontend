@@ -134,6 +134,14 @@ export function PostForm() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   // ─── Submit ────────────────────────────────────────────────────────────────
 
   const onSubmit = async (values: FormValues) => {
@@ -184,7 +192,7 @@ export function PostForm() {
     <S.PageWrapper>
       {/* ── Conteúdo principal ── */}
       <S.Container>
-        <S.Breadcrumb to="/">← Voltar para o feed</S.Breadcrumb>
+        <S.Breadcrumb to="/professor">← Voltar para o feed</S.Breadcrumb>
 
         <S.Grid>
           {/* ── Formulário ── */}
