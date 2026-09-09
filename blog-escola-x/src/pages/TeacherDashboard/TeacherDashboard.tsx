@@ -6,6 +6,7 @@ import { getPosts, deletePost } from "../../services/posts.service";
 import { Header } from "../../components/Header/Header";
 import type { Post } from "../../types/api";
 import { Footer } from "../../components/Footer/Footer";
+import * as S from "./TeacherDashboard.styles";
 
 const SUBJECT_LABELS: Record<string, string> = {
   MATHEMATICS: "Matemática",
@@ -124,147 +125,134 @@ export function TeacherDashboard() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-blue-50">
-        <p className="text-blue-500">Carregando painel...</p>
-      </main>
+      <S.Loading>Carregando painel...</S.Loading>
     );
   }
 
   return (
-    <main className="min-h-screen bg-blue-50 px-4 py-4 sm:px-6 sm:py-8">
-      <div className="mx-auto max-w-6xl">
+    <S.Page>
+      <S.Container>
         <Header showNewPost />
 
  
-        <input
+        <S.Search
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Buscar posts por palavra-chave ou autor..."
-          className="mb-4 w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
         />
 
-        <div className="mb-6 flex flex-wrap gap-2">
-          <button
+        <S.Filters>
+          <S.Filter
             onClick={() => setActiveSubject("ALL")}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-              activeSubject === "ALL"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-slate-600 hover:bg-slate-50"
-            }`}
+            $active={activeSubject === "ALL"}
           >
             Todos
-          </button>
+          </S.Filter>
           {availableSubjects.map((subject) => (
-            <button
+            <S.Filter
               key={subject}
               onClick={() => setActiveSubject(subject)}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                activeSubject === subject
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-slate-600 hover:bg-slate-50"
-              }`}
+              $active={activeSubject === subject}
             >
               {SUBJECT_LABELS[subject] ?? subject}
-            </button>
+            </S.Filter>
           ))}
-        </div>
+        </S.Filters>
 
         {error && (
-          <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>
+          <S.ErrorMessage>{error}</S.ErrorMessage>
         )}
 
         {/* Layout de duas colunas: feed + sidebar */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-          <section className="space-y-4">
+        <S.Grid>
+          <S.PostList>
             {visiblePosts.length === 0 && (
-              <p className="rounded-xl bg-white p-6 text-center text-slate-500 shadow-sm">
+              <S.Empty>
                 Nenhuma publicação encontrada.
-              </p>
+              </S.Empty>
             )}
             {visiblePosts.map((post) => {
               {/* Verificação visual apenas — a autorização real é imposta pelo backend */}
               const isOwnPost = String(post.authorId) === String(user?.id);
               return (
-                <article key={post.id} className="rounded-xl bg-white p-5 shadow-sm">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                <S.Post key={post.id}>
+                  <S.PostMeta>
+                    <S.Subject>
                       {SUBJECT_LABELS[post.subject] ?? post.subject}
-                    </span>
+                    </S.Subject>
                     {post.createdAt && (
-                      <span className="text-xs text-slate-400">
+                      <S.DateText>
                         {new Date(post.createdAt).toLocaleDateString("pt-BR")}
-                      </span>
+                      </S.DateText>
                     )}
-                  </div>
-                  <h2
+                  </S.PostMeta>
+                  <S.Title
                     onClick={() => navigate(`/post/${post.id}`)}
-                    className="mb-1 cursor-pointer font-semibold text-slate-900 hover:underline"
                   >
                     {post.title}
-                  </h2>
-                  <p className="mb-3 text-sm text-slate-500">
+                  </S.Title>
+                  <S.Summary>
                     {post.summary ?? post.content.slice(0, 120)}
-                  </p>
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-sm text-slate-600">
+                  </S.Summary>
+                  <S.PostFooter>
+                    <span>
                       {post.author?.name ?? "Autor desconhecido"}
                       {isOwnPost && " (Você)"}
                     </span>
                     {isOwnPost ? (
-                      <div className="flex flex-wrap gap-2">
-                        <button
+                      <S.Actions>
+                        <S.Action
                           onClick={() => navigate(`/post/editar/${post.id}`)}
-                          className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
                         >
                           Editar
-                        </button>
-                        <button
+                        </S.Action>
+                        <S.Action
                           onClick={() => handleDelete(post.id)}
                           disabled={String(deletingId) === String(post.id)}
-                          className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                          $danger
                         >
                           {String(deletingId) === String(post.id) ? "Excluindo..." : "Excluir"}
-                        </button>
-                      </div>
+                        </S.Action>
+                      </S.Actions>
                     ) : (
-                      <button
+                      <S.Action
                         onClick={() => navigate(`/post/${post.id}`)}
-                        className="text-sm font-medium text-blue-600 hover:underline"
+                        $link
                       >
                         Ler post completo →
-                      </button>
+                      </S.Action>
                     )}
-                  </div>
-                </article>
+                  </S.PostFooter>
+                </S.Post>
               );
             })}
-          </section>
+          </S.PostList>
 
          
-          <aside className="space-y-4">
-            <div className="rounded-xl bg-blue-600 p-5 text-white shadow-sm">
-              <p className="font-semibold">Bem-vindo(a), {user?.name ?? "Professor(a)"}!</p>
-              <p className="mt-1 text-sm text-blue-100">
+          <S.Sidebar>
+            <S.Welcome>
+              <p>Bem-vindo(a), {user?.name ?? "Professor(a)"}!</p>
+              <p>
                 Gerencie suas publicações, compartilhe conhecimento e inspire seus alunos.
               </p>
-            </div>
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <p className="text-sm font-medium text-slate-700">Espaço Seguro & Moderado</p>
-              <p className="mt-1 text-xs text-slate-500">
+            </S.Welcome>
+            <S.InfoCard>
+              <p>Espaço Seguro & Moderado</p>
+              <p>
                 Todos os comentários e publicações passam pela moderação da equipe pedagógica
                 para garantir um ambiente saudável.
               </p>
-            </div>
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <p className="mb-2 text-sm font-medium text-slate-700">Suas publicações</p>
-              <p className="text-2xl font-bold text-slate-900">{myPostsCount}</p>
-              <p className="text-xs text-slate-500">Posts publicados</p>
-            </div>
-          </aside>
-        </div>
+            </S.InfoCard>
+            <S.InfoCard>
+              <p>Suas publicações</p>
+              <S.Count>{myPostsCount}</S.Count>
+              <p>Posts publicados</p>
+            </S.InfoCard>
+          </S.Sidebar>
+        </S.Grid>
         <Footer />
-      </div>
-    </main>
+      </S.Container>
+    </S.Page>
   );
 }

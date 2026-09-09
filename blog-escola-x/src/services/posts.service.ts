@@ -36,7 +36,5 @@ export async function updatePost(id: string, data: FormData | object): Promise<P
 }
 
 export async function deletePost(id: string): Promise<void> {
-  const response = await api.delete(`/posts/${id}`);
-
-  return response.data;
+  await api.delete(`/posts/${id}`);
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { getPosts } from "../../services/posts.service";
 import type { Post } from "../../types/api";
-import "./Home.css";
 import { Button } from "../../components/Button/Button";
 
 export function Home() {

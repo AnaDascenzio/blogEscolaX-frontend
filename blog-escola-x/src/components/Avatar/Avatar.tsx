@@ -1,6 +1,21 @@
+import styled from "styled-components";
+
 interface AvatarProps {
   name: string;
 }
+
+const AvatarCircle = styled.div`
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
 
 export function Avatar({ name }: AvatarProps) {
   const initials = name
@@ -12,12 +27,11 @@ export function Avatar({ name }: AvatarProps) {
     .toUpperCase();
 
   return (
-    <div
+    <AvatarCircle
       aria-label={name}
-      className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white"
     >
       {initials || "?"}
-    </div>
+    </AvatarCircle>
   );
 }
 
