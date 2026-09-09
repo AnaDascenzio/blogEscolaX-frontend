@@ -4,12 +4,12 @@ import { http, HttpResponse, delay } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "../../contexts/AuthContext";
-import { post, teacher } from "../../test/fixtures";
+import { post, teacher, token } from "../../test/fixtures";
 import { server } from "../../test/server";
 import { TeacherDashboard } from "./TeacherDashboard";
 
 function renderDashboard() {
-  localStorage.setItem("access_token", "teacher-token");
+  localStorage.setItem("access_token", token);
   localStorage.setItem("auth_user", JSON.stringify(teacher));
   return render(
     <AuthProvider>

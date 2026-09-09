@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen, Calendar, MessageSquare, SearchX, Shield } from "lucide-react";
 import { getPostById, getPosts } from "../../services/posts.service";
 import type { Post } from "../../types/api";
+import { useAuth } from "../../contexts/AuthContext";
+import { getPostImageUrl } from "../../utils/imageUrl";
 import * as S from "./PostDetail.styles";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -63,6 +65,7 @@ function initials(name?: string): string {
 export function PostDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [post, setPost] = useState<Post | null>(null);
   const [related, setRelated] = useState<Post[]>([]);
@@ -159,9 +162,11 @@ export function PostDetail() {
   const subject = subjectInfo(post.subject);
   const minutes = readingTime(post.content);
   const paragraphs = post.content.split(/\n+/).filter(Boolean);
-  const authorName = post.author?.name ?? "Autor";
-  const authorRole =
-    post.author?.role === "TEACHER" ? "Professor(a)" : "Aluno(a)";
+  const authorName =
+    post.author?.name ||
+    (user && String(user.id) === String(post.authorId) ? user.name : undefined) ||
+    "Professor(a)";
+  const authorRole = "Professor(a)";
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -202,16 +207,23 @@ export function PostDetail() {
             </S.AuthorRow>
 
             {/* Imagem de capa */}
-            {post.imageUrl && !coverError && (
-              <S.Cover>
-                <img
-                  src={post.imageUrl}
-                  alt={`Capa: ${post.title}`}
-                  onError={() => setCoverError(true)}
-                />
-                <figcaption>{post.summary ?? post.title}</figcaption>
-              </S.Cover>
-            )}
+            {(() => {
+              const coverUrl = getPostImageUrl(post);
+              if (!coverUrl || coverError) return null;
+              return (
+                <S.Cover>
+                  <img
+                    src={coverUrl}
+                    alt={`Capa: ${post.title}`}
+                    onError={() => {
+                      console.error("Erro ao carregar imagem de capa:", coverUrl);
+                      setCoverError(true);
+                    }}
+                  />
+                  <figcaption>{post.summary ?? post.title}</figcaption>
+                </S.Cover>
+              );
+            })()}
 
             {/* Corpo do texto */}
             <S.Body>
@@ -265,7 +277,7 @@ export function PostDetail() {
                 <S.AuthorCardRole style={{ color: subject.color }}>
                   {authorRole} de {subject.label} •{" "}
                   <span style={{ color: subject.color }}>
-                    Coordenador(a) Pedagógico(a)
+                    Corpo Docente
                   </span>
                 </S.AuthorCardRole>
                 <S.AuthorCardBio>
@@ -288,13 +300,14 @@ export function PostDetail() {
                 <S.RelatedList>
                   {related.map((rp) => {
                     const rs = subjectInfo(rp.subject);
+                    const relCoverUrl = getPostImageUrl(rp);
                     return (
                       <S.RelatedItem key={rp.id}>
                         <S.RelatedLink to={`/post/${rp.id}`}>
                           <S.RelatedThumb>
-                            {rp.imageUrl ? (
+                            {relCoverUrl ? (
                               <img
-                                src={rp.imageUrl}
+                                src={relCoverUrl}
                                 alt={rp.title}
                                 onError={(e) => {
                                   const t = e.currentTarget.parentElement;

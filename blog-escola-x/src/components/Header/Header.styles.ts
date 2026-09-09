@@ -75,24 +75,32 @@ export const NewPostButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 9px 16px;
-  border: 1px solid #0f172a;
-  border-radius: 8px;
-  background: var(--color-primary);
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 500;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+  transition: all 0.15s ease-in-out;
 
   &:hover {
-    filter: brightness(0.94);
+    background-color: #1d4ed8;
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   @media (max-width: 640px) {
-    padding: 8px 10px;
-    font-size: 0.78rem;
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+    border-radius: 8px;
+    gap: 6px;
   }
 `;
 

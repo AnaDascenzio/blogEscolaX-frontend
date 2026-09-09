@@ -32,7 +32,8 @@ export function Header({ showNewPost = false }: HeaderProps) {
       <S.Actions>
         {showNewPost && (
           <S.NewPostButton type="button" onClick={() => navigate("/post/novo")}>
-            <Plus size={16} aria-hidden="true" /> Nova publicação
+            <Plus size={18} strokeWidth={2.8} aria-hidden="true" />
+            Nova Publicação
           </S.NewPostButton>
         )}
         <S.User>

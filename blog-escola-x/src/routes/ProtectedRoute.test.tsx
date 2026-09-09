@@ -35,7 +35,8 @@ describe("ProtectedRoute", () => {
   });
 
   it("redireciona usuário autenticado sem o papel exigido", () => {
-    localStorage.setItem("access_token", token);
+    const studentToken = `header.${btoa(JSON.stringify({ sub: "student-1", role: "STUDENT" }))}.signature`;
+    localStorage.setItem("access_token", studentToken);
     localStorage.setItem("auth_user", JSON.stringify({ ...teacher, role: "STUDENT" }));
     renderRoute(["TEACHER"]);
     expect(screen.getByText("home")).toBeInTheDocument();

@@ -12,6 +12,7 @@ import {
   getPostById,
   updatePost,
 } from "../../services/posts.service";
+import { getPostImageUrl } from "../../utils/imageUrl";
 import * as S from "./PostForm.styles";
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
@@ -86,7 +87,8 @@ export function PostForm() {
           content: post.content,
           link: post.link ?? "",
         });
-        if (post.imageUrl) setImagePreview(post.imageUrl);
+        const existingImg = getPostImageUrl(post);
+        if (existingImg) setImagePreview(existingImg);
       })
       .catch(() => {
         toast.error("Não foi possível carregar a publicação.");
