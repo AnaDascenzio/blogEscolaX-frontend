@@ -1,269 +1,222 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { Post, Subject } from "../../types/api";
-import "./Home.css";
+import { getPosts } from "../../services/posts.service";
+import { SUBJECT_LABELS } from "../../types/api";
+import { Footer } from "../../components/Footer/Footer";
+import type { Post } from "../../types/api";
 
-const postsExemplo: Post[] = [
-  {
-    id: "1",
-    title: "Revisão para a avaliação de Matemática",
-    summary:
-      "Confira os principais conteúdos que serão abordados na próxima avaliação: frações, porcentagem e regra de três.",
-    content:
-      "Confira os principais conteúdos que serão abordados na próxima avaliação: frações, porcentagem e regra de três.",
-    subject: "MATHEMATICS",
-    authorId: "1",
-    author: {
-      id: "1",
-      name: "Prof. Carlos",
-      email: "carlos@escola.com",
-      role: "TEACHER",
-    },
-    isDeleted: false,
-    createdAt: "2026-09-05",
-  },
-  {
-    id: "2",
-    title: "Feira de Ciências: inscrições abertas",
-    summary:
-      "Monte seu grupo e prepare um experimento criativo para apresentar na Feira de Ciências da escola.",
-    content:
-      "Monte seu grupo e prepare um experimento criativo para apresentar na Feira de Ciências da escola.",
-    subject: "SCIENCE",
-    authorId: "2",
-    author: {
-      id: "2",
-      name: "Profa. Marina",
-      email: "marina@escola.com",
-      role: "TEACHER",
-    },
-    isDeleted: false,
-    createdAt: "2026-09-04",
-  },
-  {
-    id: "3",
-    title: "Leitura recomendada para este mês",
-    summary:
-      "Veja a lista de livros e textos selecionados para apoiar as atividades de Português.",
-    content:
-      "Veja a lista de livros e textos selecionados para apoiar as atividades de Português.",
-    subject: "PORTUGUESE",
-    authorId: "3",
-    author: {
-      id: "3",
-      name: "Profa. Ana",
-      email: "ana@escola.com",
-      role: "TEACHER",
-    },
-    isDeleted: false,
-    createdAt: "2026-09-02",
-  },
-  {
-    id: "4",
-    title: "Atividade sobre a formação do Brasil",
-    summary:
-      "Leia o material de apoio e responda às questões propostas para nossa próxima aula de História.",
-    content:
-      "Leia o material de apoio e responda às questões propostas para nossa próxima aula de História.",
-    subject: "HISTORY",
-    authorId: "4",
-    author: {
-      id: "4",
-      name: "Prof. João",
-      email: "joao@escola.com",
-      role: "TEACHER",
-    },
-    isDeleted: false,
-    createdAt: "2026-09-01",
-  },
-];
-
-const materias: { value: Subject | "ALL"; label: string }[] = [
-  { value: "ALL", label: "Todas" },
-  { value: "MATHEMATICS", label: "Matemática" },
-  { value: "PORTUGUESE", label: "Português" },
-  { value: "SCIENCE", label: "Ciências" },
-  { value: "HISTORY", label: "História" },
-  { value: "GEOGRAPHY", label: "Geografia" },
-];
-
-function traduzirMateria(subject: Subject) {
-  const nomes: Record<string, string> = {
-    MATHEMATICS: "Matemática",
-    PORTUGUESE: "Português",
-    SCIENCE: "Ciências",
-    HISTORY: "História",
-    GEOGRAPHY: "Geografia",
-  };
-
-  return nomes[subject] || subject;
-}
-
-function formatarData(data?: string) {
-  if (!data) return "Data não informada";
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${data}T12:00:00`));
-}
 
 export function Home() {
-    const navigate = useNavigate();
-  const [busca, setBusca] = useState("");
-  const [materiaSelecionada, setMateriaSelecionada] =
-    useState<Subject | "ALL">("ALL");
+  const navigate = useNavigate();
 
-  const postsFiltrados = useMemo(() => {
-    const textoBusca = busca.toLowerCase().trim();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeSubject, setActiveSubject] = useState("ALL");
 
-    return postsExemplo.filter((post) => {
-      const pertenceAMateria =
-        materiaSelecionada === "ALL" || post.subject === materiaSelecionada;
+  async function loadPosts() {
+    setIsLoading(true);
+    setError(null);
 
-      const correspondeABusca =
-        !textoBusca ||
-        post.title.toLowerCase().includes(textoBusca) ||
-        post.summary?.toLowerCase().includes(textoBusca) ||
-        post.content.toLowerCase().includes(textoBusca);
+    try {
+      const resposta = await getPosts(1, 100);
+      setPosts(resposta.post);
+    } catch {
+      setError(
+        "Não foi possível carregar as publicações. Verifique se a API está disponível."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-      return pertenceAMateria && correspondeABusca;
+  useEffect(() => {
+    void loadPosts();
+  }, []);
+
+  const activePosts = useMemo(
+    () => posts.filter((post) => !post.isDeleted),
+    [posts]
+  );
+
+  const availableSubjects = useMemo(() => {
+    const subjects = new Set(activePosts.map((post) => post.subject));
+    return Array.from(subjects);
+  }, [activePosts]);
+
+  const visiblePosts = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
+    return activePosts.filter((post) => {
+      const matchesSubject =
+        activeSubject === "ALL" || post.subject === activeSubject;
+
+      const matchesSearch =
+        term === "" ||
+        post.title.toLowerCase().includes(term) ||
+        post.content.toLowerCase().includes(term) ||
+        (post.author?.name?.toLowerCase().includes(term) ?? false);
+
+      return matchesSubject && matchesSearch;
     });
-  }, [busca, materiaSelecionada]);
+  }, [activePosts, activeSubject, searchTerm]);
 
   return (
-    <div className="feed-page">
-      <header className="feed-header">
-        <div className="feed-header-content">
-          <a className="brand" href="/">
-            <span className="brand-icon">🎓</span>
-            <span>Portal Escolar</span>
-          </a>
+    <main className="min-h-screen bg-blue-50 px-4 py-4 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-6xl">
+        {/* Mesmo modelo visual do cabeçalho do professor */}
+        <header className="mb-5 flex items-center rounded-xl bg-white px-5 py-5 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-lg bg-blue-100 text-blue-600">
+              <GraduationCap size={21} strokeWidth={2} />
+            </div>
 
-          <nav className="feed-nav" aria-label="Menu principal">
-            <a className="active" href="/">
-              Início
-            </a>
-            <a href="#materias">Matérias</a>
-            <a href="#avisos">Avisos</a>
-          </nav>
-
-          <a className="login-link" href="/login">
-            Área do professor
-          </a>
-        </div>
-      </header>
-
-      <main className="feed-container">
-        <section className="feed-content">
-          <div className="feed-hero">
-            <p className="eyebrow">BLOG ESCOLAR</p>
-            <h1>Fique por dentro das novidades</h1>
-            <p>
-              Conteúdos, avisos e materiais preparados pelos professores para
-              apoiar seus estudos.
-            </p>
-          </div>
-
-          <label className="search-box">
-            <span aria-hidden="true">⌕</span>
-            <input
-              type="search"
-              value={busca}
-              onChange={(event) => setBusca(event.target.value)}
-              placeholder="Pesquisar publicações..."
-              aria-label="Pesquisar publicações"
-            />
-          </label>
-
-          <section id="materias" className="filter-section">
             <div>
-              <h2>Publicações recentes</h2>
-              <p>
-                {postsFiltrados.length} publicação(ões) encontrada(s)
+              <strong className="block text-sm text-slate-900">
+                Portal Escolar
+              </strong>
+              <span className="block text-xs text-slate-500">
+                Painel do Aluno
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Buscar posts por palavra-chave ou autor..."
+          className="mb-4 w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        />
+
+        <div className="mb-6 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveSubject("ALL")}
+            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+              activeSubject === "ALL"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            Todos
+          </button>
+
+          {availableSubjects.map((subject) => (
+            <button
+              type="button"
+              key={subject}
+              onClick={() => setActiveSubject(subject)}
+              className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                activeSubject === subject
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {SUBJECT_LABELS[subject] ?? subject}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_272px]">
+          <section className="space-y-4">
+            {isLoading && (
+              <p className="rounded-xl bg-white p-6 text-center text-slate-500 shadow-sm">
+                Carregando publicações...
+              </p>
+            )}
+
+            {error && (
+              <div className="rounded-xl bg-red-50 p-5 text-sm text-red-600 shadow-sm">
+                <p>{error}</p>
+                <button
+                  type="button"
+                  onClick={() => void loadPosts()}
+                  className="mt-2 font-medium text-blue-600 hover:underline"
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            )}
+
+            {!isLoading && !error && visiblePosts.length === 0 && (
+              <p className="rounded-xl bg-white p-6 text-center text-slate-500 shadow-sm">
+                Nenhuma publicação encontrada.
+              </p>
+            )}
+
+            {!isLoading &&
+              !error &&
+              visiblePosts.map((post) => (
+                <article
+                  key={post.id}
+                  className="rounded-xl bg-white p-5 shadow-sm"
+                >
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <span className="inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                      {SUBJECT_LABELS[post.subject] ?? post.subject}
+                    </span>
+
+                    {post.createdAt && (
+                      <span className="text-xs text-slate-400">
+                        {new Date(post.createdAt).toLocaleDateString("pt-BR")}
+                      </span>
+                    )}
+                  </div>
+
+                  <h2
+                    onClick={() => navigate(`/post/${post.id}`)}
+                    className="mb-1 cursor-pointer font-semibold text-slate-900 hover:underline"
+                  >
+                    {post.title}
+                  </h2>
+
+                  <p className="mb-3 text-sm text-slate-500">
+                    {post.summary ?? post.content.slice(0, 120)}
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <span className="text-sm text-slate-600">
+                      {post.author?.name ?? "Professor(a) responsável"}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/post/${post.id}`)}
+                      className="text-sm font-medium text-blue-600 hover:underline"
+                    >
+                      Ler post completo →
+                    </button>
+                  </div>
+                </article>
+              ))}
+          </section>
+
+          <aside className="space-y-4">
+            <div className="rounded-xl bg-blue-600 p-5 text-white shadow-sm">
+              <p className="font-semibold">Bem-vindo(a) ao Portal do Aluno!</p>
+              <p className="mt-1 text-sm text-blue-100">
+                Acompanhe conteúdos, materiais e avisos publicados pelos seus
+                professores.
               </p>
             </div>
 
-            <div className="filters" aria-label="Filtrar por matéria">
-              {materias.map((materia) => (
-                <button
-                  key={materia.value}
-                  type="button"
-                  className={
-                    materiaSelecionada === materia.value ? "selected" : ""
-                  }
-                  onClick={() => setMateriaSelecionada(materia.value)}
-                >
-                  {materia.label}
-                </button>
-              ))}
+            <div className="rounded-xl bg-white p-5 shadow-sm">
+              <p className="text-sm font-medium text-slate-700">
+                Espaço Seguro & Moderado
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                As publicações são organizadas pela equipe pedagógica para
+                manter um ambiente saudável de aprendizagem.
+              </p>
             </div>
-          </section>
-
-          <div className="posts-list">
-            {postsFiltrados.map((post) => (
-              <article className="post-card" key={post.id}>
-                <div className="post-card-top">
-                  <span className="subject-tag">
-                    {traduzirMateria(post.subject)}
-                  </span>
-                  <time>{formatarData(post.createdAt)}</time>
-                </div>
-
-                <h2>{post.title}</h2>
-                <p>{post.summary || post.content}</p>
-
-                <div className="post-card-footer">
-                  <span>
-                    Por {post.author?.name || "Professor(a) responsável"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/post/${post.id}`)}
-                  >
-                    Ler publicação →
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          {postsFiltrados.length === 0 && (
-            <div className="empty-state">
-              <span>🔎</span>
-              <h2>Nenhuma publicação encontrada</h2>
-              <p>Tente pesquisar outro termo ou selecione outra matéria.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setBusca("");
-                  setMateriaSelecionada("ALL");
-                }}
-              >
-                Limpar filtros
-              </button>
-            </div>
-          )}
-        </section>
-
-        <aside className="sidebar">
-          <section className="sidebar-card" id="avisos">
-            <h2>Links rápidos</h2>
-            <a href="#materias">📚 Materiais de estudo</a>
-            <a href="#avisos">📅 Calendário escolar</a>
-            <a href="#avisos">📢 Mural de avisos</a>
-          </section>
-
-          <section className="sidebar-card highlighted">
-            <p className="eyebrow">PRECISA DE AJUDA?</p>
-            <h2>Converse com sua turma ou professor.</h2>
-            <p>
-              Fique atento às novidades publicadas no Portal Escolar.
-            </p>
-          </section>
-        </aside>
-      </main>
-    </div>
+          </aside>
+        </div>
+      </div>
+      <Footer />
+    </main>
   );
 }

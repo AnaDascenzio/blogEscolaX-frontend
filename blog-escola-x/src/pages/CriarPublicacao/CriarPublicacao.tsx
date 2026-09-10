@@ -11,20 +11,14 @@ import {
   getPostById,
   updatePost,
 } from "../../services/posts.service";
+import { SUBJECT_OPTIONS } from "../../types/api";
+import { Footer } from "../../components/Footer/Footer";
 import * as S from "./CriarPublicacao.styles";
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
-
-const SUBJECTS = [
-  { value: "MATHEMATICS", label: "Matemática" },
-  { value: "PORTUGUESE", label: "Português" },
-  { value: "SCIENCE", label: "Ciências" },
-  { value: "HISTORY", label: "História" },
-  { value: "GEOGRAPHY", label: "Geografia" },
-];
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -184,7 +178,7 @@ export function CriarPublicacao() {
     <S.PageWrapper>
       {/* ── Conteúdo principal ── */}
       <S.Container>
-        <S.Breadcrumb to="/">← Voltar para o feed</S.Breadcrumb>
+        <S.Breadcrumb to="/aluno">← Voltar para o feed</S.Breadcrumb>
 
         <S.Grid>
           {/* ── Formulário ── */}
@@ -227,7 +221,7 @@ export function CriarPublicacao() {
                     {...register("subject")}
                   >
                     <option value="">Selecione a matéria</option>
-                    {SUBJECTS.map((s) => (
+                    {SUBJECT_OPTIONS.map((s) => (
                       <option key={s.value} value={s.value}>
                         {s.label}
                       </option>
@@ -422,11 +416,8 @@ export function CriarPublicacao() {
         </S.Grid>
       </S.Container>
 
-      {/* ── Rodapé da página ── */}
-      <S.PageFooter>
-        ◈ Portal Escolar • Espaço seguro &amp; moderado para livre expressão de
-        professores e alunos
-      </S.PageFooter>
+      {/* ── Rodapé padronizado compartilhado ── */}
+      <Footer />
     </S.PageWrapper>
   );
 }

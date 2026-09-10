@@ -3,16 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getPosts, deletePost } from "../../services/posts.service";
 import { Header } from "../../components/Header/Header";
-import type { Post } from "../../types/api";
 import { Footer } from "../../components/Footer/Footer";
-
-const SUBJECT_LABELS: Record<string, string> = {
-  MATHEMATICS: "Matemática",
-  PORTUGUESE: "Português",
-  SCIENCE: "Ciências",
-  HISTORY: "História",
-  GEOGRAPHY: "Geografia",
-};
+import { SUBJECT_LABELS } from "../../types/api";
+import type { Post } from "../../types/api";
 
 interface State {
   posts: Post[];

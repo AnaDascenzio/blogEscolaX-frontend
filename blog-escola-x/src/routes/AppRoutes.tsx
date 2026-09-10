@@ -12,9 +12,11 @@ export function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/api-test" element={<Home />} />
-        <Route path="/" element={<Home />} />
+
+        <Route path="/" element={<Navigate to="/aluno" replace />} />
+        <Route path="/aluno" element={<Home />} />
         <Route path="/post/:id" element={<LeituraPost />} />
+
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
@@ -22,12 +24,14 @@ export function AppRoutes() {
               <Route path="/post/editar/:id" element={<CriarPublicacao />} />
             </Route>
           </Route>
+
           {/* Painel do professor mantém seu próprio cabeçalho, por isso fica fora do AppLayout */}
           <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
             <Route path="/professor" element={<TeacherDashboard />} />
           </Route>
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+
+        <Route path="*" element={<Navigate to="/aluno" replace />} />
       </Routes>
     </BrowserRouter>
   );

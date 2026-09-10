@@ -4,6 +4,7 @@ import { ArrowLeft, BookOpen, Calendar, MessageSquare, SearchX, Shield } from "l
 import { getPostById, getPosts } from "../../services/posts.service";
 import type { Post } from "../../types/api";
 import * as S from "./LeituraPost.styles";
+import { Footer } from "../../components/Footer/Footer";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -13,9 +14,16 @@ const SUBJECT_MAP: Record<
 > = {
   MATHEMATICS: { label: "Matemática", color: "#7c3aed", bg: "#f3e8ff" },
   PORTUGUESE: { label: "Português", color: "#0369a1", bg: "#e0f2fe" },
-  SCIENCE: { label: "Ciências", color: "#0d9488", bg: "#ccfbf1" },
   HISTORY: { label: "História", color: "#b45309", bg: "#fef3c7" },
   GEOGRAPHY: { label: "Geografia", color: "#15803d", bg: "#dcfce7" },
+  BIOLOGY: { label: "Biologia", color: "#059669", bg: "#d1fae5" },
+  PHYSICS: { label: "Física", color: "#2563eb", bg: "#dbeafe" },
+  CHEMISTRY: { label: "Química", color: "#d97706", bg: "#fef3c7" },
+  ENGLISH: { label: "Inglês", color: "#4f46e5", bg: "#e0e7ff" },
+  PHILOSOPHY: { label: "Filosofia", color: "#9333ea", bg: "#f3e8ff" },
+  SOCIOLOGY: { label: "Sociologia", color: "#ea580c", bg: "#ffedd5" },
+  PHYSICAL_EDUCATION: { label: "Educação Física", color: "#16a34a", bg: "#dcfce7" },
+  ARTS: { label: "Artes", color: "#db2777", bg: "#fce7f3" },
 };
 
 function subjectInfo(subject: string) {
@@ -350,6 +358,7 @@ export function LeituraPost() {
           </S.Sidebar>
         </S.Grid>
       </S.Container>
+      <Footer />
     </S.Page>
   );
 }
