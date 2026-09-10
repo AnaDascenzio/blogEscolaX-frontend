@@ -10,6 +10,8 @@ export interface Post {
   imageUrl?: string;
   image?: string;
   image_url?: string;
+  cover?: string;
+  coverUrl?: string;
   link?: string;
   subject: Subject;
   authorId: string;

@@ -21,6 +21,6 @@ export function resolveImageUrl(urlOrPath?: string): string | undefined {
 
 export function getPostImageUrl(post?: Partial<Post> | null): string | undefined {
   if (!post) return undefined;
-  const raw = post.imageUrl || post.image || post.image_url;
+  const raw = post.imageUrl || post.image || post.image_url || post.coverUrl || post.cover;
   return resolveImageUrl(raw);
 }

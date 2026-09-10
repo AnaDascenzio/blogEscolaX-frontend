@@ -55,6 +55,7 @@ export function PostForm() {
   const [imageError, setImageError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -148,6 +149,8 @@ export function PostForm() {
   // ─── Submit ────────────────────────────────────────────────────────────────
 
   const onSubmit = async (values: FormValues) => {
+    if (isSubmittingRef.current || isSubmitting) return;
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
       let data: FormData | object;
@@ -181,12 +184,20 @@ export function PostForm() {
 
       navigate("/professor");
     } catch (err) {
+      console.error("Erro ao salvar publicação:", err);
       if (isAxiosError(err) && err.response?.status === 403) {
         toast.error("Você não tem permissão para realizar esta ação.");
       } else {
-        toast.error("Erro ao salvar a publicação. Tente novamente.");
+        const responseMessage = isAxiosError(err)
+          ? (err.response?.data as { message?: string | string[] } | undefined)?.message
+          : undefined;
+        const message = Array.isArray(responseMessage)
+          ? responseMessage.join(", ")
+          : responseMessage;
+        toast.error(message || "Erro ao salvar a publicação. Tente novamente.");
       }
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -210,7 +221,17 @@ export function PostForm() {
               </p>
             </S.FormHeader>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <form
+              onSubmit={(e) => {
+                if (isSubmittingRef.current || isSubmitting) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                void handleSubmit(onSubmit)(e);
+              }}
+              noValidate
+            >
               <S.FormBody>
                 {/* Título */}
                 <S.Field>
@@ -364,7 +385,16 @@ export function PostForm() {
                   >
                     Cancelar
                   </S.BtnCancel>
-                  <S.BtnPublish type="submit" disabled={isSubmitting}>
+                  <S.BtnPublish
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={(e) => {
+                      if (isSubmittingRef.current || isSubmitting) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    }}
+                  >
                     {isSubmitting
                       ? "Publicando..."
                       : isEditing

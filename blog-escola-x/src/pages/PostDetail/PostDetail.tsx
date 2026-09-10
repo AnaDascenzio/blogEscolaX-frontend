@@ -60,6 +60,7 @@ function initials(name?: string): string {
     .slice(0, 2);
 }
 
+
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function PostDetail() {
@@ -72,6 +73,7 @@ export function PostDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [coverError, setCoverError] = useState(false);
+  const [loadedPostId, setLoadedPostId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -80,12 +82,8 @@ export function PostDetail() {
     let cancelled = false;
 
     async function loadPost() {
-      await Promise.resolve();
-      if (cancelled) return;
-
       setIsLoading(true);
       setError(null);
-      setPost(null);
       setRelated([]);
       setCoverError(false);
 
@@ -94,6 +92,8 @@ export function PostDetail() {
         if (cancelled) return;
 
         setPost(data);
+        setLoadedPostId(postId);
+
         const result = await getPosts(1, 10);
         if (cancelled) return;
 
@@ -107,6 +107,7 @@ export function PostDetail() {
           setError(
             "Ops! O post que você procura não está disponível ou não existe. Que tal voltar ao feed e explorar outras publicações?"
           );
+          setLoadedPostId(postId);
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -122,7 +123,7 @@ export function PostDetail() {
 
   // ── Loading / Error ──────────────────────────────────────────────────────
 
-  if (isLoading) {
+  if (isLoading || loadedPostId !== id) {
     return (
       <S.Page>
         <S.Container>
