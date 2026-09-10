@@ -215,13 +215,12 @@ export function PostDetail() {
                 <S.Cover>
                   <img
                     src={coverUrl}
-                    alt={`Capa: ${post.title}`}
+                    alt={post.title}
                     onError={() => {
                       console.error("Erro ao carregar imagem de capa:", coverUrl);
                       setCoverError(true);
                     }}
                   />
-                  <figcaption>{post.summary ?? post.title}</figcaption>
                 </S.Cover>
               );
             })()}
