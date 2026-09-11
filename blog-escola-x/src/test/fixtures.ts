@@ -20,3 +20,4 @@ export const post: Post = {
 };
 
 export const token = `header.${btoa(JSON.stringify({ role: "TEACHER" }))}.signature`;
+export const studentToken = `header.${btoa(JSON.stringify({ role: "STUDENT" }))}.signature`;

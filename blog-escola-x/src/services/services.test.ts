@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../test/server";
 import { post, teacher, token } from "../test/fixtures";
@@ -36,17 +36,26 @@ describe("serviços HTTP", () => {
     expect(requests).toContain("POST");
   });
 
-  it("remove a sessão local quando a API retorna 401", async () => {
+  it("emite session:expired quando a API retorna 401", async () => {
+    // Desde a correção do CR-05, o interceptor não mexe mais no localStorage
+    // diretamente — ele só dispara o evento; quem limpa a sessão é o
+    // AuthProvider (ver AuthContext.test.tsx). Por isso este teste, que só
+    // sobe o axios/api.ts sem AuthProvider, valida o evento em si.
     localStorage.setItem("access_token", token);
-    localStorage.setItem("auth_user", JSON.stringify(teacher));
     server.use(
       http.get("http://localhost:3000/private", () =>
         HttpResponse.json({ message: "expired" }, { status: 401 }),
       ),
     );
 
-    await expect(api.get("/private")).rejects.toMatchObject({ response: { status: 401 } });
-    expect(localStorage.getItem("access_token")).toBeNull();
-    expect(localStorage.getItem("auth_user")).toBeNull();
+    const onSessionExpired = vi.fn();
+    window.addEventListener("session:expired", onSessionExpired);
+
+    try {
+      await expect(api.get("/private")).rejects.toMatchObject({ response: { status: 401 } });
+      expect(onSessionExpired).toHaveBeenCalledTimes(1);
+    } finally {
+      window.removeEventListener("session:expired", onSessionExpired);
+    }
   });
 });
