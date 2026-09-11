@@ -392,7 +392,7 @@ describe("AuthContext", () => {
 			let caughtError: Error | null = null;
 
 			function ProblemChild() {
-				useAuth(); // vai lançar
+				const _auth = useAuth(); // vai lançar
 				return null;
 			}
 
