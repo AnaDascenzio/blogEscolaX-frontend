@@ -13,20 +13,14 @@ import {
   updatePost,
 } from "../../services/posts.service";
 import { getPostImageUrl } from "../../utils/imageUrl";
+import { SUBJECT_OPTIONS } from "../../types/api";
+import { Footer } from "../../components/Footer/Footer";
 import * as S from "./PostForm.styles";
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
-
-const SUBJECTS = [
-  { value: "MATHEMATICS", label: "Matemática" },
-  { value: "PORTUGUESE", label: "Português" },
-  { value: "SCIENCE", label: "Ciências" },
-  { value: "HISTORY", label: "História" },
-  { value: "GEOGRAPHY", label: "Geografia" },
-];
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -261,7 +255,7 @@ export function PostForm() {
                     {...register("subject")}
                   >
                     <option value="">Selecione a matéria</option>
-                    {SUBJECTS.map((s) => (
+                    {SUBJECT_OPTIONS.map((s) => (
                       <option key={s.value} value={s.value}>
                         {s.label}
                       </option>
@@ -465,11 +459,8 @@ export function PostForm() {
         </S.Grid>
       </S.Container>
 
-      {/* ── Rodapé da página ── */}
-      <S.PageFooter>
-        ◈ Portal Escolar • Espaço seguro &amp; moderado para livre expressão de
-        professores e alunos
-      </S.PageFooter>
+      {/* ── Rodapé padronizado compartilhado ── */}
+      <Footer />
     </S.PageWrapper>
   );
 }

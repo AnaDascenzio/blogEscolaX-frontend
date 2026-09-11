@@ -1,60 +1,188 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getPosts } from "../../services/posts.service";
+import { SUBJECT_LABELS } from "../../types/api";
+import { Footer } from "../../components/Footer/Footer";
+import { useAuth } from "../../contexts/AuthContext";
+import { isAxiosError } from "axios";
 import type { Post } from "../../types/api";
-import { Button } from "../../components/Button/Button";
+import * as S from "./Home.styles";
 
 export function Home() {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
   const [posts, setPosts] = useState<Post[]>([]);
-  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeSubject, setActiveSubject] = useState("ALL");
+
+  async function loadPosts() {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const resposta = await getPosts(1, 100);
+      setPosts(resposta.post);
+    } catch (err) {
+      if (isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+        signOut();
+        navigate("/login", { replace: true });
+        return;
+      }
+      setError(
+        "Não foi possível carregar as publicações. Verifique se a API está disponível."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadPosts() {
-      try {
-        const result = await getPosts();
-        setPosts(result.post);
-        setTotal(result.total);
-      } catch {
-        setErrorMessage("Não foi possível carregar as publicações. Verifique se o backend está rodando.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
     void loadPosts();
   }, []);
 
+  const activePosts = useMemo(
+    () => posts.filter((post) => !post.isDeleted),
+    [posts]
+  );
+
+  const availableSubjects = useMemo(() => {
+    const subjects = new Set(activePosts.map((post) => post.subject));
+    return Array.from(subjects);
+  }, [activePosts]);
+
+  const visiblePosts = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
+    return activePosts.filter((post) => {
+      const matchesSubject =
+        activeSubject === "ALL" || post.subject === activeSubject;
+
+      const matchesSearch =
+        term === "" ||
+        post.title.toLowerCase().includes(term) ||
+        post.content.toLowerCase().includes(term) ||
+        (post.author?.name?.toLowerCase().includes(term) ?? false);
+
+      return matchesSubject && matchesSearch;
+    });
+  }, [activePosts, activeSubject, searchTerm]);
+
   return (
-    <main className="api-test-page">
-      <header className="api-test-header">
-        <div>
-          <p className="eyebrow">Integração com backend</p>
-          <h1>Publicações escolares</h1>
-          <p>Teste de retorno do endpoint <strong>GET /posts</strong>.</p>
-        </div>
-        {!isLoading && !errorMessage && <strong>{total} publicação(ões)</strong>}
-      </header>
+    <S.Page>
+      <S.Container>
+        <S.SearchInput
+          type="text"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Buscar posts por palavra-chave ou autor..."
+        />
 
-      {isLoading && <p className="api-test-feedback">Carregando publicações...</p>}
-      {errorMessage && <p className="api-test-feedback api-test-error">{errorMessage}</p>}
-      {!isLoading && !errorMessage && posts.length === 0 && (
-        <p className="api-test-feedback">A API respondeu corretamente, mas não há publicações cadastradas.</p>
-      )}
+        <S.FilterGroup>
+          <S.FilterButton
+            type="button"
+            onClick={() => setActiveSubject("ALL")}
+            $active={activeSubject === "ALL"}
+          >
+            Todos
+          </S.FilterButton>
 
-      <div className="api-test-list">
-        {posts.map((post) => (
-          <article className="api-test-card" key={post.id}>
-            <span>{post.subject}</span>
-            <h2>{post.title}</h2>
-            <p>{post.summary || post.content}</p>
-            <small>ID: {post.id} | Autor: {post.author?.name || post.authorId}</small>
-          </article>
-        ))}
-      </div>
-      <Button onClick={() => window.location.reload()} disabled={isLoading}>
-        Recarregar publicações
-      </Button>
-    </main>
+          {availableSubjects.map((subject) => (
+            <S.FilterButton
+              type="button"
+              key={subject}
+              onClick={() => setActiveSubject(subject)}
+              $active={activeSubject === subject}
+            >
+              {SUBJECT_LABELS[subject] ?? subject}
+            </S.FilterButton>
+          ))}
+        </S.FilterGroup>
+
+        <S.MainGrid>
+          <S.PostsSection>
+            {isLoading && (
+              <S.StatusCard>Carregando publicações...</S.StatusCard>
+            )}
+
+            {error && (
+              <S.ErrorCard>
+                <p>{error}</p>
+                <button
+                  type="button"
+                  onClick={() => void loadPosts()}
+                >
+                  Tentar novamente
+                </button>
+              </S.ErrorCard>
+            )}
+
+            {!isLoading && !error && visiblePosts.length === 0 && (
+              <S.StatusCard>Nenhuma publicação encontrada.</S.StatusCard>
+            )}
+
+            {!isLoading &&
+              !error &&
+              visiblePosts.map((post) => (
+                <S.PostCard key={post.id}>
+                  <S.PostHeader>
+                    <S.SubjectBadge>
+                      {SUBJECT_LABELS[post.subject] ?? post.subject}
+                    </S.SubjectBadge>
+
+                    {post.createdAt && (
+                      <S.PostDate>
+                        {new Date(post.createdAt).toLocaleDateString("pt-BR")}
+                      </S.PostDate>
+                    )}
+                  </S.PostHeader>
+
+                  <S.PostTitle onClick={() => navigate(`/post/${post.id}`)}>
+                    {post.title}
+                  </S.PostTitle>
+
+                  <S.PostSummary>
+                    {post.summary ?? post.content.slice(0, 120)}
+                  </S.PostSummary>
+
+                  <S.PostFooter>
+                    <S.PostAuthor>
+                      {post.author?.name ?? "Professor(a) responsável"}
+                    </S.PostAuthor>
+
+                    <S.ReadMoreButton
+                      type="button"
+                      onClick={() => navigate(`/post/${post.id}`)}
+                    >
+                      Ler post completo →
+                    </S.ReadMoreButton>
+                  </S.PostFooter>
+                </S.PostCard>
+              ))}
+          </S.PostsSection>
+
+          <S.Sidebar>
+            <S.WelcomeCard>
+              <strong>Bem-vindo(a) ao Portal do Aluno!</strong>
+              <p>
+                Acompanhe conteúdos, materiais e avisos publicados pelos seus
+                professores.
+              </p>
+            </S.WelcomeCard>
+
+            <S.SafeSpaceCard>
+              <strong>Espaço Seguro & Moderado</strong>
+              <p>
+                As publicações são organizadas pela equipe pedagógica para
+                manter um ambiente saudável de aprendizagem.
+              </p>
+            </S.SafeSpaceCard>
+          </S.Sidebar>
+        </S.MainGrid>
+      </S.Container>
+      <Footer />
+    </S.Page>
   );
 }

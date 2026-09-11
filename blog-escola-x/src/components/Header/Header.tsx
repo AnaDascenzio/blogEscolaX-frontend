@@ -38,10 +38,10 @@ export function Header({ showNewPost = false }: HeaderProps) {
         )}
         <S.User>
           <S.UserText>
-            <strong>{user?.name ?? user?.email ?? "Usuário"}</strong>
+            <strong>{user?.name || (user?.role === "TEACHER" ? "Professor" : "Aluno")}</strong>
             <span>{user?.role === "TEACHER" ? "Professor" : "Aluno"}</span>
           </S.UserText>
-          <Avatar name={user?.name ?? user?.email ?? "?"} />
+          <Avatar name={user?.name || (user?.role === "TEACHER" ? "Professor" : "Aluno")} />
           <S.LogoutButton type="button" onClick={handleSignOut} aria-label="Sair">
             <LogOut size={16} aria-hidden="true" />
             <span>Sair</span>

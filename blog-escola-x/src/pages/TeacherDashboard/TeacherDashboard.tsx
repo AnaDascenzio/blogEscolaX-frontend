@@ -5,19 +5,10 @@ import { ArrowRight, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getPosts, deletePost } from "../../services/posts.service";
 import { Header } from "../../components/Header/Header";
-import type { Post } from "../../types/api";
 import { Footer } from "../../components/Footer/Footer";
 import * as S from "./TeacherDashboard.styles";
-
-const SUBJECT_LABELS: Record<string, string> = {
-  MATHEMATICS: "Matemática",
-  PORTUGUESE: "Português",
-  SCIENCE: "Ciências",
-  HISTORY: "História",
-  GEOGRAPHY: "Geografia",
-  ACADEMIC: "Acadêmico",
-  SPORTS: "Esportes",
-};
+import { SUBJECT_LABELS } from "../../types/api";
+import type { Post } from "../../types/api";
 
 const SUBJECT_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
   MATHEMATICS: { label: "Matemática", bg: "#f3e8ff", color: "#7c3aed" },

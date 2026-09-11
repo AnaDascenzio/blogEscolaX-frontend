@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,7 +6,7 @@ import { isAxiosError } from "axios";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { GraduationCap } from "lucide-react";
-import { useAuth } from "../../contexts/AuthContext";
+import { decodeToken, TOKEN_KEY, useAuth, type AuthUser } from "../../contexts/AuthContext";
 import { getRoleFromToken, getRoleRedirectPath } from "../../routes/redirects";
 import { getUserByEmail, signIn as signInRequest } from "../../services/users.service";
 import * as S from "./Login.styles";
@@ -23,11 +23,19 @@ interface LocationState {
 }
 
 export function Login() {
-  const { isAuthenticated, user, signIn } = useAuth();
+  const { isAuthenticated, user, signIn, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Se o token no storage estiver ausente ou corrompido, limpa qualquer resquício
+  useEffect(() => {
+    const stored = localStorage.getItem(TOKEN_KEY);
+    if (!stored || !decodeToken(stored)) {
+      signOut();
+    }
+  }, [signOut]);
 
   const {
     register,
@@ -38,9 +46,12 @@ export function Login() {
     defaultValues: { email: "", password: "" },
   });
 
-  if (isAuthenticated) {
+  // Se já está autenticado com token válido no storage, redireciona para a página apropriada
+  const stored = localStorage.getItem(TOKEN_KEY);
+  const validToken = stored ? decodeToken(stored) : null;
+  if (isAuthenticated && validToken) {
     const requestedPath = (location.state as LocationState | null)?.from?.pathname;
-    const redirectTo = requestedPath && requestedPath !== "/" ? requestedPath : getRoleRedirectPath(user?.role);
+    const redirectTo = requestedPath && requestedPath !== "/" ? requestedPath : getRoleRedirectPath(validToken.role || user?.role);
     return <Navigate to={redirectTo} replace />;
   }
 
@@ -49,16 +60,17 @@ export function Login() {
     try {
       const { token } = await signInRequest(values);
       const tokenRole = getRoleFromToken(token);
-      signIn(token, tokenRole ? { role: tokenRole } : undefined);
-
+      let userProfile: Partial<AuthUser> = tokenRole ? { role: tokenRole } : {};
       let role = tokenRole;
       try {
         const authenticatedUser = await getUserByEmail(values.email);
-        signIn(token, authenticatedUser);
-        role = authenticatedUser.role;
+        userProfile = authenticatedUser;
+        role = authenticatedUser.role || tokenRole;
       } catch {
         role = tokenRole;
       }
+
+      signIn(token, userProfile);
 
       const requestedPath = (location.state as LocationState | null)?.from?.pathname;
       const redirectTo = requestedPath && requestedPath !== "/" ? requestedPath : getRoleRedirectPath(role);
