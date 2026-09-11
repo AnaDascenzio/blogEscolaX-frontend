@@ -13,12 +13,10 @@ export function AppRoutes() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        <Route path="/" element={<Navigate to="/aluno" replace />} />
-        <Route path="/aluno" element={<Home />} />
-        <Route path="/post/:id" element={<PostDetail />} />
-
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/post/:id" element={<PostDetail />} />
             <Route element={<ProtectedRoute allowedRoles={["TEACHER"]} />}>
               <Route path="/post/novo" element={<PostForm />} />
               <Route path="/post/editar/:id" element={<PostForm />} />
@@ -31,7 +29,7 @@ export function AppRoutes() {
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/aluno" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
