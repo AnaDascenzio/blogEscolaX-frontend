@@ -12,7 +12,7 @@ export const post: Post = {
   title: "Post de teste",
   content: "Conteúdo suficiente para validar o post.",
   summary: "Resumo do post",
-  subject: "SCIENCE",
+  subject: "BIOLOGY",
   authorId: teacher.id,
   author: teacher,
   isDeleted: false,

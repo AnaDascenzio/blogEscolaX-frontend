@@ -22,7 +22,7 @@ function renderForm() {
 
 async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/Título da Postagem/), "Aula de Ciências");
-  await user.selectOptions(screen.getByLabelText(/Matéria/), "SCIENCE");
+  await user.selectOptions(screen.getByLabelText(/Matéria/), "BIOLOGY");
   await user.type(screen.getByLabelText(/Conteúdo da Publicação/), "Conteúdo com mais de dez caracteres.");
 }
 
