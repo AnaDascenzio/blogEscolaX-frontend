@@ -121,6 +121,27 @@ describe("AuthContext", () => {
 			expect(authValue!.isAuthenticated).toBe(false);
 			expect(localStorage.getItem("access_token")).toBeNull();
 		});
+
+		it("rejeita token sem role válida no localStorage", () => {
+			const tokenWithoutRole = fakeJwt({
+				sub: "user-1",
+				email: "aluno@escola.com",
+				exp: Math.floor(Date.now() / 1000) + 3600,
+			});
+			localStorage.setItem("access_token", tokenWithoutRole);
+
+			let authValue: ReturnType<typeof useAuth> | null = null;
+
+			render(
+				<AuthProvider>
+					<AuthConsumer onRender={(auth) => { authValue = auth; }} />
+				</AuthProvider>,
+			);
+
+			expect(authValue!.isAuthenticated).toBe(false);
+			expect(authValue!.user).toBeNull();
+			expect(localStorage.getItem("access_token")).toBeNull();
+		});
 	});
 
 	// ── signIn ────────────────────────────────────────────────────────────
@@ -378,6 +399,66 @@ describe("AuthContext", () => {
 			);
 
 			removeEventListenerSpy.mockRestore();
+		});
+	});
+
+	// ── validateSession e sincronização ───────────────────────────────────
+
+	describe("validateSession e sincronização", () => {
+		it("retorna false e desloga se o token foi corrompido no localStorage", () => {
+			let authValue: ReturnType<typeof useAuth> | null = null;
+
+			render(
+				<AuthProvider>
+					<AuthConsumer onRender={(auth) => { authValue = auth; }} />
+				</AuthProvider>,
+			);
+
+			act(() => {
+				authValue!.signIn(validToken());
+			});
+
+			expect(authValue!.isAuthenticated).toBe(true);
+
+			// Corrompe o token no storage
+			localStorage.setItem("access_token", "token-invalido");
+
+			let isValid = false;
+			act(() => {
+				isValid = authValue!.validateSession();
+			});
+
+			expect(isValid).toBe(false);
+			expect(authValue!.isAuthenticated).toBe(false);
+			expect(authValue!.token).toBeNull();
+			expect(localStorage.getItem("access_token")).toBeNull();
+		});
+
+		it("desloga quando o evento focus é disparado com token corrompido", () => {
+			let authValue: ReturnType<typeof useAuth> | null = null;
+
+			render(
+				<AuthProvider>
+					<AuthConsumer onRender={(auth) => { authValue = auth; }} />
+				</AuthProvider>,
+			);
+
+			act(() => {
+				authValue!.signIn(validToken());
+			});
+
+			expect(authValue!.isAuthenticated).toBe(true);
+
+			// Corrompe o token
+			localStorage.setItem("access_token", "token-invalido");
+
+			act(() => {
+				window.dispatchEvent(new Event("focus"));
+			});
+
+			expect(authValue!.isAuthenticated).toBe(false);
+			expect(authValue!.token).toBeNull();
+			expect(localStorage.getItem("access_token")).toBeNull();
 		});
 	});
 

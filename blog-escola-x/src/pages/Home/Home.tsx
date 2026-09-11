@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getPosts } from "../../services/posts.service";
 import { SUBJECT_LABELS } from "../../types/api";
 import { Footer } from "../../components/Footer/Footer";
+import { useAuth } from "../../contexts/AuthContext";
+import { isAxiosError } from "axios";
 import type { Post } from "../../types/api";
 import * as S from "./Home.styles";
 
 export function Home() {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +25,12 @@ export function Home() {
     try {
       const resposta = await getPosts(1, 100);
       setPosts(resposta.post);
-    } catch {
+    } catch (err) {
+      if (isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+        signOut();
+        navigate("/login", { replace: true });
+        return;
+      }
       setError(
         "Não foi possível carregar as publicações. Verifique se a API está disponível."
       );
@@ -66,20 +73,6 @@ export function Home() {
   return (
     <S.Page>
       <S.Container>
-        {/* Cabeçalho do portal do aluno */}
-        <S.Header>
-          <S.HeaderBrand>
-            <S.HeaderIconBox>
-              <GraduationCap size={21} strokeWidth={2} />
-            </S.HeaderIconBox>
-
-            <S.HeaderText>
-              <strong>Portal Escolar</strong>
-              <span>Painel do Aluno</span>
-            </S.HeaderText>
-          </S.HeaderBrand>
-        </S.Header>
-
         <S.SearchInput
           type="text"
           value={searchTerm}

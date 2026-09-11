@@ -16,47 +16,6 @@ export const Container = styled.div`
   max-width: 72rem;
 `;
 
-export const Header = styled.header`
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  border-radius: 12px;
-  background-color: #ffffff;
-  padding: 20px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-`;
-
-export const HeaderBrand = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-export const HeaderIconBox = styled.div`
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background-color: #dbeafe;
-  color: #2563eb;
-`;
-
-export const HeaderText = styled.div`
-  strong {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: #0f172a;
-  }
-
-  span {
-    display: block;
-    font-size: 0.75rem;
-    color: #64748b;
-  }
-`;
-
 export const SearchInput = styled.input`
   margin-bottom: 16px;
   width: 100%;

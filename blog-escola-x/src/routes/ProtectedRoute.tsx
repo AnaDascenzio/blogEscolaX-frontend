@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth, type UserRole } from "../contexts/AuthContext";
+import { useAuth, decodeToken, TOKEN_KEY, type UserRole } from "../contexts/AuthContext";
 import styled from "styled-components";
 
 interface ProtectedRouteProps {
@@ -23,18 +24,32 @@ const LoadingPage = styled.main`
 `;
 
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-	const { isAuthenticated, user, isLoading } = useAuth();
+	const { isAuthenticated, user, isLoading, signOut } = useAuth();
 	const location = useLocation();
+
+	// Valida ativamente o token no storage a cada navegação/renderização da rota
+	const storedToken = localStorage.getItem(TOKEN_KEY);
+	const validTokenData = storedToken ? decodeToken(storedToken) : null;
+	const isSessionValid = Boolean(isAuthenticated && user?.role && storedToken && validTokenData);
+
+	useEffect(() => {
+		if (!isSessionValid && (isAuthenticated || storedToken)) {
+			signOut();
+		}
+	}, [isSessionValid, isAuthenticated, storedToken, signOut]);
 
 	if (isLoading) {
 		return <LoadingPage>Carregando sessão...</LoadingPage>;
 	}
 
-	if (!isAuthenticated) {
+	if (!isSessionValid || !validTokenData) {
+		localStorage.removeItem(TOKEN_KEY);
+		sessionStorage.removeItem("auth_user_name");
 		return <Navigate to="/login" replace state={{ from: location }} />;
 	}
 
-	if (allowedRoles && (!user || !allowedRoles.includes(user.role))) {
+	const role = validTokenData.role;
+	if (role && allowedRoles && !allowedRoles.includes(role)) {
 		return <Navigate to="/" replace />;
 	}
 

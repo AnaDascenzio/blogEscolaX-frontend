@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen, Calendar, MessageSquare, SearchX, Shield } from "lucide-react";
+import { isAxiosError } from "axios";
 import { getPostById, getPosts } from "../../services/posts.service";
 import type { Post } from "../../types/api";
 import { useAuth } from "../../contexts/AuthContext";
@@ -110,7 +111,11 @@ export function PostDetail() {
           .sort((a) => (a.subject === data.subject ? -1 : 1))
           .slice(0, 3);
         setRelated(others);
-      } catch {
+      } catch (err) {
+        if (isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+          navigate("/login", { replace: true });
+          return;
+        }
         if (!cancelled) {
           setError(
             "Ops! O post que você procura não está disponível ou não existe. Que tal voltar ao feed e explorar outras publicações?"
