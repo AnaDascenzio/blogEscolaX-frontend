@@ -2,9 +2,6 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 api.interceptors.request.use(
@@ -28,9 +25,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Emitir evento para que o AuthProvider limpe o estado React
-      // e o ProtectedRoute redirecione para /login.
-      // Evita manipular localStorage diretamente aqui (responsabilidade do AuthProvider).
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("auth_user");
       window.dispatchEvent(new CustomEvent("session:expired"));
     }
     return Promise.reject(error);

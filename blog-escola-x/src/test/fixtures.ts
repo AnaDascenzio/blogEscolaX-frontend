@@ -19,5 +19,6 @@ export const post: Post = {
   createdAt: "2026-09-08",
 };
 
-export const token = `header.${btoa(JSON.stringify({ role: "TEACHER" }))}.signature`;
+export const token = `header.${btoa(JSON.stringify({ sub: teacher.id, role: "TEACHER" }))}.signature`;
 export const studentToken = `header.${btoa(JSON.stringify({ role: "STUDENT" }))}.signature`;
+

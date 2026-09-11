@@ -8,6 +8,10 @@ export interface Post {
   content: string;
   summary?: string;
   imageUrl?: string;
+  image?: string;
+  image_url?: string;
+  cover?: string;
+  coverUrl?: string;
   link?: string;
   subject: Subject;
   authorId: string;
