@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ProtectedRoute } from "./ProtectedRoute";
-import { teacher, token } from "../test/fixtures";
+import { studentToken, token } from "../test/fixtures";
 
 function renderRoute(allowedRoles?: Array<"TEACHER" | "STUDENT">) {
   return render(
@@ -29,15 +29,13 @@ describe("ProtectedRoute", () => {
 
   it("permite professor no papel autorizado", () => {
     localStorage.setItem("access_token", token);
-    localStorage.setItem("auth_user", JSON.stringify(teacher));
     renderRoute(["TEACHER"]);
     expect(screen.getByText("conteúdo protegido")).toBeInTheDocument();
   });
 
   it("redireciona usuário autenticado sem o papel exigido", () => {
-    const studentToken = `header.${btoa(JSON.stringify({ sub: "student-1", role: "STUDENT" }))}.signature`;
+    // A role vem do token (fonte da verdade pós CR-04), não de um dado solto no localStorage.
     localStorage.setItem("access_token", studentToken);
-    localStorage.setItem("auth_user", JSON.stringify({ ...teacher, role: "STUDENT" }));
     renderRoute(["TEACHER"]);
     expect(screen.getByText("home")).toBeInTheDocument();
   });
