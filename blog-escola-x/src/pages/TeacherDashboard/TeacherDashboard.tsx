@@ -6,6 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getPosts, deletePost } from "../../services/posts.service";
 import { Header } from "../../components/Header/Header";
 import { Footer } from "../../components/Footer/Footer";
+import { Button } from "../../components/Button/Button";
 import * as S from "./TeacherDashboard.styles";
 import { SUBJECT_LABELS } from "../../types/api";
 import type { Post } from "../../types/api";
@@ -82,6 +83,7 @@ function getInitials(name?: string): string {
 
 interface State {
   posts: Post[];
+  total: number;
   isLoading: boolean;
   error: string | null;
   deletingId: string | null;
@@ -89,7 +91,7 @@ interface State {
 
 type Action =
   | { type: "FETCH_START" }
-  | { type: "FETCH_SUCCESS"; payload: Post[] }
+  | { type: "FETCH_SUCCESS"; payload: { post: Post[]; total: number } }
   | { type: "FETCH_ERROR"; payload: string }
   | { type: "DELETE_START"; payload: string }
   | { type: "DELETE_SUCCESS"; payload: string }
@@ -97,6 +99,7 @@ type Action =
 
 const initialState: State = {
   posts: [],
+  total: 0,
   isLoading: true,
   error: null,
   deletingId: null,
@@ -107,7 +110,12 @@ function reducer(state: State, action: Action): State {
     case "FETCH_START":
       return { ...state, isLoading: true, error: null };
     case "FETCH_SUCCESS":
-      return { ...state, isLoading: false, posts: action.payload };
+      return {
+        ...state,
+        isLoading: false,
+        posts: action.payload.post,
+        total: action.payload.total,
+      };
     case "FETCH_ERROR":
       return { ...state, isLoading: false, error: action.payload };
     case "DELETE_START":
@@ -117,6 +125,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         deletingId: null,
         posts: state.posts.filter((p) => String(p.id) !== String(action.payload)),
+        total: Math.max(0, state.total - 1),
       };
     case "DELETE_ERROR":
       return { ...state, deletingId: null, error: action.payload };
@@ -129,23 +138,30 @@ export function TeacherDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { posts, isLoading, error, deletingId } = state;
+  const { posts, total, isLoading, error, deletingId } = state;
+
+  const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSubject, setActiveSubject] = useState<string>("ALL");
+
+  const LIMIT = 6;
 
   useEffect(() => {
     async function loadPosts() {
       dispatch({ type: "FETCH_START" });
       try {
-        const { post } = await getPosts(1, 100);
-        dispatch({ type: "FETCH_SUCCESS", payload: post });
+        const response = await getPosts(page, LIMIT);
+        dispatch({ type: "FETCH_SUCCESS", payload: response });
       } catch {
-        dispatch({ type: "FETCH_ERROR", payload: "Não foi possível carregar as publicações." });
+        dispatch({
+          type: "FETCH_ERROR",
+          payload: "Não foi possível carregar as publicações.",
+        });
       }
     }
 
     void loadPosts();
-  }, []);
+  }, [page]);
 
   const activePosts = useMemo(() => posts.filter((p) => !p.isDeleted), [posts]);
 
@@ -166,11 +182,22 @@ export function TeacherDashboard() {
     });
   }, [activePosts, activeSubject, searchTerm]);
 
-  // Verificação visual apenas — a autorização real é imposta pelo backend
   const myPostsCount = useMemo(
     () => activePosts.filter((p) => String(p.authorId) === String(user?.id)).length,
     [activePosts, user]
   );
+
+  const totalPages = Math.ceil(total / LIMIT) || 1;
+
+  const handleSubjectChange = (subject: string) => {
+    setActiveSubject(subject);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
 
   async function handleDelete(id: string) {
     if (!confirm("Tem certeza que deseja excluir esta publicação?")) return;
@@ -180,17 +207,21 @@ export function TeacherDashboard() {
       dispatch({ type: "DELETE_SUCCESS", payload: id });
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 403) {
-        dispatch({ type: "DELETE_ERROR", payload: "Você não tem permissão para excluir esta publicação." });
+        dispatch({
+          type: "DELETE_ERROR",
+          payload: "Você não tem permissão para excluir esta publicação.",
+        });
       } else {
-        dispatch({ type: "DELETE_ERROR", payload: "Não foi possível excluir a publicação." });
+        dispatch({
+          type: "DELETE_ERROR",
+          payload: "Não foi possível excluir a publicação.",
+        });
       }
     }
   }
 
-  if (isLoading) {
-    return (
-      <S.Loading>Carregando painel...</S.Loading>
-    );
+  if (isLoading && posts.length === 0) {
+    return <S.Loading>Carregando painel...</S.Loading>;
   }
 
   return (
@@ -198,17 +229,16 @@ export function TeacherDashboard() {
       <S.Container>
         <Header showNewPost />
 
- 
         <S.Search
           type="text"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Buscar posts por palavra-chave ou autor..."
         />
 
         <S.Filters>
           <S.Filter
-            onClick={() => setActiveSubject("ALL")}
+            onClick={() => handleSubjectChange("ALL")}
             $active={activeSubject === "ALL"}
           >
             Todos
@@ -216,7 +246,7 @@ export function TeacherDashboard() {
           {availableSubjects.map((subject) => (
             <S.Filter
               key={subject}
-              onClick={() => setActiveSubject(subject)}
+              onClick={() => handleSubjectChange(subject)}
               $active={activeSubject === subject}
             >
               {SUBJECT_LABELS[subject] ?? subject}
@@ -224,20 +254,14 @@ export function TeacherDashboard() {
           ))}
         </S.Filters>
 
-        {error && (
-          <S.ErrorMessage>{error}</S.ErrorMessage>
-        )}
+        {error && <S.ErrorMessage>{error}</S.ErrorMessage>}
 
-        {/* Layout de duas colunas: feed + sidebar */}
         <S.Grid>
           <S.PostList>
             {visiblePosts.length === 0 && (
-              <S.Empty>
-                Nenhuma publicação encontrada.
-              </S.Empty>
+              <S.Empty>Nenhuma publicação encontrada.</S.Empty>
             )}
             {visiblePosts.map((post) => {
-              {/* Verificação visual apenas — a autorização real é imposta pelo backend */}
               const isOwnPost = String(post.authorId) === String(user?.id);
               const badge = getSubjectBadge(post.subject);
               const authorName = post.author?.name ?? "Autor desconhecido";
@@ -266,9 +290,7 @@ export function TeacherDashboard() {
 
                   <S.PostFooter>
                     <S.AuthorContainer>
-                      <S.AuthorAvatar>
-                        {getInitials(authorName)}
-                      </S.AuthorAvatar>
+                      <S.AuthorAvatar>{getInitials(authorName)}</S.AuthorAvatar>
                       <S.AuthorInfo>
                         <S.AuthorName>
                           {authorName}
@@ -294,7 +316,9 @@ export function TeacherDashboard() {
                         >
                           <Trash2 size={15} />
                           <span>
-                            {String(deletingId) === String(post.id) ? "Excluindo..." : "Excluir"}
+                            {String(deletingId) === String(post.id)
+                              ? "Excluindo..."
+                              : "Excluir"}
                           </span>
                         </S.DeleteButton>
                       </S.Actions>
@@ -315,9 +339,37 @@ export function TeacherDashboard() {
                 </S.Post>
               );
             })}
+
+            {/* Controles de Paginação */}
+            {totalPages > 1 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "16px",
+                  marginTop: "24px",
+                }}
+              >
+                <Button
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={page === 1 || isLoading}
+                >
+                  Anterior
+                </Button>
+                <span>
+                  Página {page} de {totalPages}
+                </span>
+                <Button
+                  onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={page >= totalPages || isLoading}
+                >
+                  Próxima
+                </Button>
+              </div>
+            )}
           </S.PostList>
 
-         
           <S.Sidebar>
             <S.Welcome>
               <p>Bem-vindo(a), {user?.name ?? "Professor(a)"}!</p>
@@ -335,7 +387,7 @@ export function TeacherDashboard() {
             <S.InfoCard>
               <p>Suas publicações</p>
               <S.Count>{myPostsCount}</S.Count>
-              <p>Posts publicados</p>
+              <p>Posts nesta página</p>
             </S.InfoCard>
           </S.Sidebar>
         </S.Grid>

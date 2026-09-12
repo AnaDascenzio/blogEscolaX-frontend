@@ -239,3 +239,41 @@ export const SafeSpaceCard = styled.div`
     line-height: 1.5;
   }
 `;
+
+export const PaginationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+  margin-bottom: 24px;
+
+  span {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #4b5563;
+  }
+`;
+
+export const PaginationButton = styled.button`
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+`;

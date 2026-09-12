@@ -13,35 +13,52 @@ export function Home() {
   const { signOut } = useAuth();
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSubject, setActiveSubject] = useState("ALL");
 
-  async function loadPosts() {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const resposta = await getPosts(1, 100);
-      setPosts(resposta.post);
-    } catch (err) {
-      if (isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
-        signOut();
-        navigate("/login", { replace: true });
-        return;
-      }
-      setError(
-        "Não foi possível carregar as publicações. Verifique se a API está disponível."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const LIMIT = 6;
+  const totalPages = Math.ceil(total / LIMIT) || 1;
 
   useEffect(() => {
+    async function loadPosts() {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const resposta = await getPosts(page, LIMIT);
+        setPosts(resposta.post);
+        setTotal(resposta.total);
+      } catch (err) {
+        if (
+          isAxiosError(err) &&
+          (err.response?.status === 401 || err.response?.status === 403)
+        ) {
+          signOut();
+          navigate("/login", { replace: true });
+          return;
+        }
+        setError(
+          "Não foi possível carregar as publicações. Verifique se a API está disponível."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     void loadPosts();
-  }, []);
+  }, [page, navigate, signOut]);
+
+  const handleNextPage = () => {
+    if (page < totalPages) setPage((prev) => prev + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) setPage((prev) => prev - 1);
+  };
 
   const activePosts = useMemo(
     () => posts.filter((post) => !post.isDeleted),
@@ -83,7 +100,10 @@ export function Home() {
         <S.FilterGroup>
           <S.FilterButton
             type="button"
-            onClick={() => setActiveSubject("ALL")}
+            onClick={() => {
+              setActiveSubject("ALL");
+              setPage(1);
+            }}
             $active={activeSubject === "ALL"}
           >
             Todos
@@ -93,7 +113,10 @@ export function Home() {
             <S.FilterButton
               type="button"
               key={subject}
-              onClick={() => setActiveSubject(subject)}
+              onClick={() => {
+                setActiveSubject(subject);
+                setPage(1);
+              }}
               $active={activeSubject === subject}
             >
               {SUBJECT_LABELS[subject] ?? subject}
@@ -110,12 +133,6 @@ export function Home() {
             {error && (
               <S.ErrorCard>
                 <p>{error}</p>
-                <button
-                  type="button"
-                  onClick={() => void loadPosts()}
-                >
-                  Tentar novamente
-                </button>
               </S.ErrorCard>
             )}
 
@@ -161,6 +178,30 @@ export function Home() {
                   </S.PostFooter>
                 </S.PostCard>
               ))}
+
+           {!error && totalPages > 1 && (
+          <S.PaginationContainer>
+            <S.PaginationButton
+              type="button"
+              onClick={handlePrevPage}
+              disabled={isLoading || page === 1}
+            >
+              Anterior
+            </S.PaginationButton>
+
+            <span>
+              Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+            </span>
+
+            <S.PaginationButton
+              type="button"
+              onClick={handleNextPage}
+              disabled={isLoading || page >= totalPages}
+            >
+              Próxima
+            </S.PaginationButton>
+          </S.PaginationContainer>
+        )}
           </S.PostsSection>
 
           <S.Sidebar>
