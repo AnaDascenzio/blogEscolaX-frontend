@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth, decodeToken, TOKEN_KEY, type UserRole } from "../contexts/AuthContext";
+import { useAuth, type UserRole } from "../contexts/AuthContext";
+import { decodeToken, TOKEN_KEY } from "../contexts/authToken";
 import styled from "styled-components";
 
 interface ProtectedRouteProps {
